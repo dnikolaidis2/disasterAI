@@ -14,8 +14,8 @@ public class State {
 
         this.position = position;
         this.grid = grid; 
-        this.numOfRows = grid.getNumOfRows();
-        this.numOfColumns = grid.getNumOfColumns();
+        this.numOfRows = grid.getNumOfRows()-1;
+        this.numOfColumns = grid.getNumOfColumns()-1;
     }
 
     public boolean isLegal(){
@@ -25,6 +25,20 @@ public class State {
                 return true; 
             }
         return false;     
+    }
+
+    public boolean isVisited(int[][] visitedStates){
+        if (visitedStates[this.position[0]][this.position[1]] == 1){
+            return true; 
+        } 
+        visitedStates[this.position[0]][this.position[1]] = 1; 
+        return false; 
+    }
+    
+    public boolean goalReached(){
+        if (this.position == this.grid.getTerminal())
+            return true; 
+        return false; 
     }
 
     public ArrayList<State> successorStates(){
@@ -41,7 +55,7 @@ public class State {
         {
             newState.parentNode = this;
             childNodes.add(newState);
-            System.out.println("Child State."+newState.position[0]+"\n"); 
+           // System.out.println("Child State."+newState.position[0]+"\n"); 
         }
 
         // Move Left.  
@@ -53,7 +67,7 @@ public class State {
         {
             newState.parentNode = this;
             childNodes.add(newState);
-            System.out.println("Child State."+newState.position[0]+"\n"); 
+            //System.out.println("Child State."+newState.position[0]+"\n"); 
         }
 
         // Move Up.  
@@ -65,7 +79,7 @@ public class State {
         {
             newState.parentNode = this;
             childNodes.add(newState);
-            System.out.println("Child State."+newState.position[1]+"\n"); 
+           // System.out.println("Child State."+newState.position[1]+"\n"); 
         }
 
         // Move Down.  
@@ -77,18 +91,12 @@ public class State {
         {
             newState.parentNode = this;
             childNodes.add(newState);
-            System.out.println("Child State."+newState.position[1]+"\n"); 
+            //System.out.println("Child State."+newState.position[1]+"\n"); 
         }
         return childNodes; 
     }
 
-    public boolean isVisited(int[][] visitedStates){
-        if (visitedStates[this.position[0]][this.position[1]] == 1){
-            return true; 
-        } 
-        visitedStates[this.position[0]][this.position[1]] = 1; 
-        return false; 
-    }
+  
 
     public int[] getPosition(){
         return this.position; 

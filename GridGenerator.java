@@ -52,10 +52,12 @@ class GridGenerator{
 		VisualizeGrid(frame,N,M,mygrid.getWalls(),mygrid.getGrass(),mygrid.getStartidx(),mygrid.getTerminalidx());
 		
 		//Testing Zone 
-		 
-		State initialState = new State(mygrid, mygrid.getStart());
 		BFS bfs = new BFS();
-		bfs.breadthFirstSearch(initialState);
+		State goalState = bfs.breadthFirstSearch(mygrid);
+
+		if (goalState != null){
+			System.out.println("Goal reached!");
+		}
 
 	}
 		
