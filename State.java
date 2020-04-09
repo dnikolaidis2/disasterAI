@@ -27,7 +27,7 @@ public class State {
         return false;     
     }
 
-    public ArrayList<State> successorStates() {
+    public ArrayList<State> successorStates(){
 
         ArrayList<State> childNodes = new ArrayList<State>();
         
@@ -80,5 +80,17 @@ public class State {
             System.out.println("Child State."+newState.position[1]+"\n"); 
         }
         return childNodes; 
+    }
+
+    public boolean isVisited(int[][] visitedStates){
+        if (visitedStates[this.position[0]][this.position[1]] == 1){
+            return true; 
+        } 
+        visitedStates[this.position[0]][this.position[1]] = 1; 
+        return false; 
+    }
+
+    public int[] getPosition(){
+        return this.position; 
     }
 }
