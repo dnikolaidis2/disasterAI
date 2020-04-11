@@ -26,10 +26,9 @@ public class BFS {
                     State child = children.get(children.size()-1);
                     if (!child.isVisited(visitedStates)){
                         queue.add(child);
-                        System.out.println("child\n");
                     }
                     children.remove(child); 
-            }
+                }
         }
         return null;
     }
