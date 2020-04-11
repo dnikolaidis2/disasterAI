@@ -77,7 +77,7 @@ class GridGenerator{
 		int count=moves-1;  
 		while (tempState.getParentNode() != null){
 			steps[count] = tempState.getIdx();
-			System.out.println("Step : "+steps[count]);
+			System.out.println("Step cost: "+tempState.getF());
 			count--; 
 			tempState = tempState.getParentNode();
 		}

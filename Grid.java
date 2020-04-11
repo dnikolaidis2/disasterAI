@@ -81,6 +81,7 @@ class Grid {
 	public int getNumOfColumns(){return this.M;}
 	public int[] getWalls(){return this.walls;}
 	public int[] getGrass(){return this.grass;}
+	public int getGrassCost(){return this.grass_cost;}
 
 	private void storeWorld(){
 		try{
