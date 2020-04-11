@@ -8,28 +8,28 @@ public class BFS {
 
     public State breadthFirstSearch(Grid grid){
         State initialState = new State(grid, grid.getStart());
-        int[] position = initialState.getPosition();
-        int visitedStates[][] = new int[position[0]+1][position[1]+1];
+        // int[] position = initialState.getPosition();
+        int visitedStates[][] = new int[grid.getNumOfRows()][grid.getNumOfColumns()];
 
-        Queue<State> queue = new LinkedList<>();
-        queue.add(initialState);
+        Stack<State> stack = new Stack<>();
+        stack.add(initialState);
 
-        while (!queue.isEmpty()){
+        while (!stack.isEmpty()){
 
-            State state = queue.remove(); 
-            ArrayList<State> children = initialState.successorStates();
+            State state = stack.pop(); 
+            ArrayList<State> children = state.successorStates();
             
             if (state.goalReached())
                 return state;
 
 
-            while (!children.isEmpty()){
-                State child = children.get(children.size()-1);
-                if (!child.isVisited(visitedStates)){
-                    queue.add(child);
-                    System.out.println("child\n");
-                }
-                children.remove(child); 
+                while (!children.isEmpty()){
+                    State child = children.get(children.size()-1);
+                    if (!child.isVisited(visitedStates)){
+                        stack.add(child);
+                        System.out.println("child\n");
+                    }
+                    children.remove(child); 
             }
         }
         return null;

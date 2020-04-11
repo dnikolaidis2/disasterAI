@@ -58,6 +58,9 @@ class GridGenerator{
 		if (goalState != null){
 			System.out.println("Goal reached!");
 		}
+		else{
+			System.out.println("Not reached!");
+		}
 
 	}
 		

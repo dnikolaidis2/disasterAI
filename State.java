@@ -1,6 +1,6 @@
-import java.util.ArrayList; 
+import java.util.*; 
 
-public class State {
+public class State implements Cloneable {
 
     private int [] position;
     private State parentNode;
@@ -17,6 +17,10 @@ public class State {
         this.numOfRows = grid.getNumOfRows()-1;
         this.numOfColumns = grid.getNumOfColumns()-1;
     }
+
+    public Object clone()throws CloneNotSupportedException{  
+        return super.clone();  
+    } 
 
     public boolean isLegal(){
         if (this.position[0] >= 0 && this.position[0] <= numOfRows && 
@@ -36,7 +40,7 @@ public class State {
     }
     
     public boolean goalReached(){
-        if (this.position == this.grid.getTerminal())
+        if (Arrays.equals(this.position, this.grid.getTerminal()))
             return true; 
         return false; 
     }
@@ -45,54 +49,62 @@ public class State {
 
         ArrayList<State> childNodes = new ArrayList<State>();
         
-        // Move Right. 
-        int[] newPosition = new int[2]; 
-        newPosition[0] = position[0] + 1;
-        newPosition[1] = position[1];
+        try{
 
-        State newState = new State(this.grid, newPosition);  
-        if (newState.isLegal())
-        {
-            newState.parentNode = this;
-            childNodes.add(newState);
-           // System.out.println("Child State."+newState.position[0]+"\n"); 
-        }
+            // Move Right. 
+            int[] newPosition1 = new int[2]; 
+            newPosition1[0] = this.position[0] + 1;
+            newPosition1[1] = this.position[1];
 
-        // Move Left.  
-        newPosition[0] = position[0] -1;
-        newPosition[1] = position[1];
+            State newState1 = new State(this.grid, newPosition1);  
+            if (newState1.isLegal())
+            {
+                newState1.parentNode = this;
+                childNodes.add(newState1);
+             
+            }
 
-        newState = new State(this.grid, newPosition);  
-        if (newState.isLegal())
-        {
-            newState.parentNode = this;
-            childNodes.add(newState);
-            //System.out.println("Child State."+newState.position[0]+"\n"); 
-        }
+            // Move Left.  
+            int[] newPosition2 = new int[2];
+            newPosition2[0] = this.position[0] -1;
+            newPosition2[1] = this.position[1];
+    
+            State newState2 = new State(this.grid, newPosition2);  
+            if (newState2.isLegal())
+            {
+                newState2.parentNode = this;
+                childNodes.add((State)newState2.clone());
+                 
+            }
 
-        // Move Up.  
-        newPosition[0] = position[0];
-        newPosition[1] = position[1]+1;
+            // Move Up. 
+            int[] newPosition3 = new int[2]; 
+            newPosition3[0] = this.position[0];
+            newPosition3[1] = this.position[1]+1;
 
-        newState = new State(this.grid, newPosition);  
-        if (newState.isLegal())
-        {
-            newState.parentNode = this;
-            childNodes.add(newState);
-           // System.out.println("Child State."+newState.position[1]+"\n"); 
-        }
+            State newState3 = new State(this.grid, newPosition3);  
+            if (newState3.isLegal())
+            {
+                newState3.parentNode = this;
+                childNodes.add((State)newState3.clone());
+             
+            }
 
-        // Move Down.  
-        newPosition[0] = position[0];
-        newPosition[1] = position[1]-1;
+            // Move Down.
+            int[] newPosition4 = new int[2];  
+            newPosition4[0] = this.position[0];
+            newPosition4[1] = this.position[1]-1;
 
-        newState = new State(this.grid, newPosition);  
-        if (newState.isLegal())
-        {
-            newState.parentNode = this;
-            childNodes.add(newState);
-            //System.out.println("Child State."+newState.position[1]+"\n"); 
-        }
+            State newState4 = new State(this.grid, newPosition4);  
+            if (newState4.isLegal())
+            {
+                newState4.parentNode = this;
+                childNodes.add((State)newState4.clone());
+                 
+            }
+
+        }catch(CloneNotSupportedException c){}
+
         return childNodes; 
     }
 
