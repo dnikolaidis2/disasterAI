@@ -10,12 +10,12 @@ public class BFS {
         State initialState = new State(grid, grid.getStart());
         int visitedStates[][] = new int[grid.getNumOfRows()][grid.getNumOfColumns()];
 
-        Stack<State> stack = new Stack<>();
-        stack.add(initialState);
+        Queue<State> queue = new LinkedList<>(); //Is it though?
+        queue.add(initialState);
 
-        while (!stack.isEmpty()){
+        while (!queue.isEmpty()){
 
-            State state = stack.pop(); 
+            State state = queue.remove(); 
             ArrayList<State> children = state.successorStates();
             
             if (state.goalReached())
@@ -25,7 +25,7 @@ public class BFS {
                 while (!children.isEmpty()){
                     State child = children.get(children.size()-1);
                     if (!child.isVisited(visitedStates)){
-                        stack.add(child);
+                        queue.add(child);
                         System.out.println("child\n");
                     }
                     children.remove(child); 

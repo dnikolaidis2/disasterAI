@@ -51,17 +51,13 @@ class GridGenerator{
 		int M = mygrid.getNumOfColumns();
 		VisualizeGrid(frame,N,M,mygrid.getWalls(),mygrid.getGrass(),mygrid.getStartidx(),mygrid.getTerminalidx());
 		
-		//Testing Zone 
+		//Breadth First Search 
 		BFS bfs = new BFS();
 		State goalState = bfs.breadthFirstSearch(mygrid);
-		int[] steps = generateSteps(goalState);
-		VisualizeGrid(frame,N,M,mygrid.getWalls(),mygrid.getGrass(),steps,mygrid.getStartidx(),mygrid.getTerminalidx());
-		if (goalState != null){
-			System.out.println("Goal reached!");
-		}
-		else{
-			System.out.println("Not reached!");
-		}
+		VisualizeGrid(frame,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalState),mygrid.getStartidx(),mygrid.getTerminalidx());
+		
+		//Depth First Search
+		//DFS dfs = new DFS();
 
 	}
 
