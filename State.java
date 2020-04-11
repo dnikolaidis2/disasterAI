@@ -3,7 +3,7 @@ import java.util.*;
 public class State implements Cloneable {
 
     private int [] position;
-    private State parentNode;
+    private State parentNode = null;
     private Grid grid;
     private int numOfRows;
     private int numOfColumns;  
@@ -106,11 +106,17 @@ public class State implements Cloneable {
         }catch(CloneNotSupportedException c){}
 
         return childNodes; 
-    }
-
-  
+    }  
 
     public int[] getPosition(){
         return this.position; 
+    }
+
+    public State getParentNode(){
+        return this.parentNode;
+    }
+
+    public int getIdx(){
+        return this.position[0]*grid.getNumOfColumns() + this.position[1];
     }
 }

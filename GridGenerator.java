@@ -54,7 +54,8 @@ class GridGenerator{
 		//Testing Zone 
 		BFS bfs = new BFS();
 		State goalState = bfs.breadthFirstSearch(mygrid);
-
+		int[] steps = generateSteps(goalState);
+		VisualizeGrid(frame,N,M,mygrid.getWalls(),mygrid.getGrass(),steps,mygrid.getStartidx(),mygrid.getTerminalidx());
 		if (goalState != null){
 			System.out.println("Goal reached!");
 		}
@@ -62,6 +63,38 @@ class GridGenerator{
 			System.out.println("Not reached!");
 		}
 
+	}
+
+	public static int[] generateSteps(State state){
+		int moves = 0;
+		State tempState = state;  
+		while (tempState.getParentNode() != null){
+			moves++;
+			tempState = tempState.getParentNode();
+		}
+		
+		int[] steps = new int[moves];
+
+		tempState = state;
+		int count=moves-1;  
+		while (tempState.getParentNode() != null){
+			steps[count] = tempState.getIdx();
+			System.out.println("Step : "+steps[count]);
+			count--; 
+			tempState = tempState.getParentNode();
+		}
+		reverse(steps, count);
+        return steps;
+	}
+	
+	public static void reverse(int a[], int n) 
+    { 
+        int i, k, t; 
+        for (i = 0; i < n / 2; i++) { 
+            t = a[i]; 
+            a[i] = a[n - i - 1]; 
+            a[n - i - 1] = t; 
+		} 
 	}
 		
 }

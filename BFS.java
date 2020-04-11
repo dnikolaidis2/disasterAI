@@ -8,7 +8,6 @@ public class BFS {
 
     public State breadthFirstSearch(Grid grid){
         State initialState = new State(grid, grid.getStart());
-        // int[] position = initialState.getPosition();
         int visitedStates[][] = new int[grid.getNumOfRows()][grid.getNumOfColumns()];
 
         Stack<State> stack = new Stack<>();
