@@ -124,7 +124,8 @@ public class State implements Cloneable {
     
     public void generateF(){
         //Update g cost
-        this.g = parentNode.getG()+this.blockCost();
+        if (this.parentNode != null)
+            this.g = this.parentNode.getG()+this.blockCost();
 
         //Find h
         this.h = findH();

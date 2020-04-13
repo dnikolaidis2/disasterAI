@@ -54,13 +54,20 @@ class GridGenerator{
 		//Breadth First Search 
 		BFS bfs = new BFS();
 		State goalStateBFS = bfs.breadthFirstSearch(mygrid);
+		System.out.println("\n\n--------Breadth First Search---------\n\n");
 		VisualizeGrid(frame,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateBFS),mygrid.getStartidx(),mygrid.getTerminalidx());
 		
 		//Depth First Search
 		DFS dfs = new DFS();
 		State goalStateDFS = dfs.depthFirstSearch(mygrid);
+		System.out.println("\n\n--------Depth Fisrt Search---------\n\n");
 		VisualizeGrid(frame,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateDFS),mygrid.getStartidx(),mygrid.getTerminalidx());
 		
+		//AStar Search
+		AStar astar = new AStar();
+		State goalStateAStar = astar.aStarSearch(mygrid);
+		System.out.println("\n\n--------ASTAR---------\n\n");
+		VisualizeGrid(frame,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateAStar),mygrid.getStartidx(),mygrid.getTerminalidx());
 	}
 
 	public static int[] generateSteps(State state){
