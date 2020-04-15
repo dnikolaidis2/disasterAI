@@ -1,0 +1,13 @@
+NOTES
+
+30 employees
+14 days. 
+
+--we expect an array-chromosome of dimensions [30,14]
+
+--each cell can be one of these : [0, 1, 2, 3]
+where 0 is free, 1 is morning, 2 evening, 3 night shift. 
+
+Hard constraints : 
+    1. We must have for each day as many empoloyees as have been asked. 
+    
