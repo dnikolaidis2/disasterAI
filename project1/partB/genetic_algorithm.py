@@ -40,7 +40,6 @@ def workforceSatisfied(day, dayNumber):
     return 0
 
 
- 
 
 def checkHardConstraints(population):
     # As many employees as required per shift per day
@@ -77,6 +76,22 @@ def penaltyFunction(population):
         #Morning Shift after Night Shift 
         if soft.morningAfterNight(employee):
             penalty += 1000*soft.morningAfterNight(employee)
+        
+        #Morning Shift after Evening Shift
+        if soft.morningAfterEvening(employee):
+            penalty += 1000*soft.morningAfterEvening(employee)
+        
+        #Evening Shift after Night
+        if soft.eveningAfterNight(employee):
+            penalty += 1000*soft.eveningAfterNight(employee)
+
+        #Two days Off after 4 Night Shifts
+        if soft.twoDaysOffAfterNightShift(employee):
+            penalty += 100 
+
+        #Two days Off after 7 days of work 
+        if soft.twoDaysOffAfterSevenDays(employee):
+            penalty+=100
 
     return penalty   
 
