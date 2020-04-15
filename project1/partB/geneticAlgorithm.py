@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 import constant as c
 from genetic_algorithm import penaltyFunction, checkHardConstraints
 

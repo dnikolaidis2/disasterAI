@@ -2,9 +2,10 @@
 import numpy as np 
 import constant as c
 import soft_constraints as soft
+from argparse import ArgumentParser
 
 
-def geneticAlgorithm():
+def geneticAlgorithm(pop):
     initPop = generateRandomPopulation()
 
     if checkHardConstraints(initPop):
@@ -40,7 +41,6 @@ def workforceSatisfied(day, dayNumber):
     return 0
 
 
-
 def checkHardConstraints(population):
     # As many employees as required per shift per day
     populationT = population.transpose()
@@ -70,10 +70,10 @@ def penaltyFunction(population):
 
         # MAX 4 NIGHT SHIFTS 
         if soft.maxNightShifts(employee):
-            #Multiply the penalty if constraint is broken more than once in schedule
-            penalty+= 1000*soft.maxNightShifts(employee)
+            # Multiply the penalty if constraint is broken more than once in schedule
+            penalty += 1000*soft.maxNightShifts(employee)
 
-        #Morning Shift after Night Shift 
+        # Morning Shift after Night Shift
         if soft.morningAfterNight(employee):
             penalty += 1000*soft.morningAfterNight(employee)
         
@@ -96,4 +96,18 @@ def penaltyFunction(population):
     return penalty   
 
 
-geneticAlgorithm()
+if __name__ == "__main__":
+    parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
+    parser.add_argument("--pop", type=int, default=10,
+                        help="When I know I will tell you.")
+    parser.add_argument("--iter", type=int, default=10,
+                        help="When I know I will tell you.")
+    parser.add_argument("--psel", type=float, default=.1,
+                        help="When I know I will tell you.")
+    parser.add_argument("--pcross", type=float, default=.1,
+                        help="When I know I will tell you.")
+    parser.add_argument("--pmut", type=float, default=.1,
+                        help="When I know I will tell you.")
+    args = parser.parse_args()
+
+    geneticAlgorithm(args.pop)

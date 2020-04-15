@@ -18,6 +18,7 @@ def straightDaysWorked(employee):
             return 1
     return 0
 
+
 def maxNightShifts(employee):
     nightShifts = 0
     timesViolated = 0
