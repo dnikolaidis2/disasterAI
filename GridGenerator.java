@@ -76,10 +76,10 @@ class GridGenerator{
 		VisualizeGrid("AStar",3,0,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateAStar),mygrid.getStartidx(),mygrid.getTerminalidx());
 
 		//LRTAStar Search
-		// LRTAStar lartastar = new LRTAStar();
-		// State goalStateLRTAStar = lartastar.LRTAStarSearch(mygrid);
-		// System.out.println("\n\n--------LRTAStar---------\n\n");
-		// VisualizeGrid("LRTAStar",0,1,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateLRTAStar),mygrid.getStartidx(),mygrid.getTerminalidx());
+		LRTAStar lartastar = new LRTAStar();
+		State goalStateLRTAStar = lartastar.LRTAStarSearch(mygrid);
+		System.out.println("\n\n--------LRTAStar---------\n\n");
+		VisualizeGrid("LRTAStar",0,1,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateLRTAStar),mygrid.getStartidx(),mygrid.getTerminalidx());
 	}
 
 	public static int[] generateSteps(State state){
