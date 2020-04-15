@@ -16,7 +16,7 @@ public class BFS {
         while (!queue.isEmpty()){
 
             State state = queue.remove(); 
-            ArrayList<State> children = state.successorStates();
+            ArrayList<State> children = state.successorStates(false);
             
             if (state.goalReached())
                 return state;

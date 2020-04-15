@@ -62,6 +62,10 @@ class Grid {
 	public Cell getCell(int i, int j){
 		return this.mygrid[i][j];
 	}
+
+	public Cell getCell(int [] position){
+		return this.mygrid[position[0]][position[1]];
+	}
 	public int[] getStart(){
 		int [] idx = new int[2];
 		idx[0] = this.start_idx/M;

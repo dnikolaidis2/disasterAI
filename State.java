@@ -27,9 +27,11 @@ public class State implements Cloneable {
     public boolean isLegal(){
         if (this.position[0] >= 0 && this.position[0] <= numOfRows && 
             this.position[1] >= 0 && this.position[1] <= numOfColumns)
-            {
-                return true; 
-            }
+        {
+            if (!this.grid.getCell(this.position).isWall())
+                return true;
+        }
+
         return false;     
     }
 
@@ -46,8 +48,8 @@ public class State implements Cloneable {
             return true; 
         return false; 
     }
-
-    public ArrayList<State> successorStates(){
+    
+    public ArrayList<State> successorStates(boolean shuffle){
 
         ArrayList<State> childNodes = new ArrayList<State>();
         
@@ -110,6 +112,10 @@ public class State implements Cloneable {
                 
         }
 
+        if (shuffle) {
+            Collections.shuffle(childNodes);
+        }
+        
         return childNodes; 
     }
 
@@ -165,5 +171,9 @@ public class State implements Cloneable {
 
     public void setG(double g){
         this.g = g; 
+    }
+
+    public Cell getCell() {
+        return this.grid.getCell(this.position);
     }
 }

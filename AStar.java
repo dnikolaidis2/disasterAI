@@ -22,7 +22,7 @@ public class AStar {
 
              
             
-            ArrayList<State> children = cheapState.successorStates(); 
+            ArrayList<State> children = cheapState.successorStates(false); 
 
             while (!children.isEmpty()){
                 State child = children.get(children.size()-1);

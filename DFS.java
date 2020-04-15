@@ -17,7 +17,7 @@ public class DFS {
         while (stack.empty() == false){
 
             State state = stack.pop();
-            ArrayList<State> children = state.successorStates();
+            ArrayList<State> children = state.successorStates(false);
             
             if (state.goalReached())
                 return state;
