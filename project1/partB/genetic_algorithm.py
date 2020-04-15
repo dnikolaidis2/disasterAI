@@ -6,17 +6,17 @@ from argparse import ArgumentParser
 
 
 def geneticAlgorithm(pop):
-    initPop = generateRandomPopulation()
+    initPop = generateRandomPopulation(pop)
 
-    if checkHardConstraints(initPop):
-        print("Not legal.")
+    initialViability = checkHardConstraints(initPop)
 
-    penaltyFunction(initPop)
+    penalties = penaltyFunction(initPop)
 
 
-def generateRandomPopulation():
-    population = np.random.randint(0, 4, size=(30, 14))
-    print(population)
+def generateRandomPopulation(pop):
+    population = np.empty([pop, c.EMPLOYEE_COUNT, c.DAY_COUNT])
+    for i in range(pop):
+        population[i] = np.random.randint(0, 4, size=(c.EMPLOYEE_COUNT, c.DAY_COUNT))
 
     return population  
 
@@ -42,63 +42,78 @@ def workforceSatisfied(day, dayNumber):
 
 
 def checkHardConstraints(population):
-    # As many employees as required per shift per day
-    populationT = population.transpose()
-    dayNumber = 0
-    for day in populationT:
-        if workforceSatisfied(day, dayNumber):
-            print("Legal day") 
-        
-        dayNumber += 1
-        if dayNumber == 7:
-            dayNumber = 0
-    return 1
+    pop = population.shape[0]
+    ret = np.zeros(pop)
+
+    for i in range(pop):
+        # As many employees as required per shift per day
+        populationT = population[i].transpose()
+        dayNumber = 0
+        for day in populationT:
+            if not workforceSatisfied(day, dayNumber):
+                continue
+
+            dayNumber += 1
+
+        ret[i] = 1
+
+    return ret
 
 
 def penaltyFunction(population):
-    # Give a value to a population based on soft constraints
-    penalty = 0
+    pop = population.shape[0]
+    ret = np.zeros(pop)
 
-    for employee in population: 
-        # MAX 70 hours of work (per week or per 14 days)
-        if soft.hoursWorked(employee) > c.MAX_WORK_HOURS:
-            penalty += 1000
+    for i in range(pop):
+        # Give a value to a population based on soft constraints
+        penalty = 0
 
-        # MAX 7 continuous days of work
-        if soft.straightDaysWorked(employee):
-            penalty += 1000
+        for employee in population:
+            # MAX 70 hours of work (per week or per 14 days)
+            if soft.hoursWorked(employee) > c.MAX_WORK_HOURS:
+                penalty += 1000
 
-        # MAX 4 NIGHT SHIFTS 
-        if soft.maxNightShifts(employee):
-            # Multiply the penalty if constraint is broken more than once in schedule
-            penalty += 1000*soft.maxNightShifts(employee)
+            # MAX 7 continuous days of work
+            if soft.straightDaysWorked(employee):
+                penalty += 1000
 
-        # Morning Shift after Night Shift
-        if soft.morningAfterNight(employee):
-            penalty += 1000*soft.morningAfterNight(employee)
-        
-        #Morning Shift after Evening Shift
-        if soft.morningAfterEvening(employee):
-            penalty += 1000*soft.morningAfterEvening(employee)
-        
-        #Evening Shift after Night
-        if soft.eveningAfterNight(employee):
-            penalty += 1000*soft.eveningAfterNight(employee)
+            # MAX 4 NIGHT SHIFTS
+            if soft.maxNightShifts(employee):
+                # Multiply the penalty if constraint is broken more than once in schedule
+                penalty += 1000*soft.maxNightShifts(employee)
 
-        #Two days Off after 4 Night Shifts
-        if soft.twoDaysOffAfterNightShift(employee):
-            penalty += 100 
+            # Morning Shift after Night Shift
+            if soft.morningAfterNight(employee):
+                penalty += 1000*soft.morningAfterNight(employee)
 
-        #Two days Off after 7 days of work 
-        if soft.twoDaysOffAfterSevenDays(employee):
-            penalty+=100
+	        # Morning Shift after Night Shift
+	        if soft.morningAfterNight(employee):
+	            penalty += 1000*soft.morningAfterNight(employee)
+	        
+	        #Morning Shift after Evening Shift
+	        if soft.morningAfterEvening(employee):
+	            penalty += 1000*soft.morningAfterEvening(employee)
+	        
+	        #Evening Shift after Night
+	        if soft.eveningAfterNight(employee):
+	            penalty += 1000*soft.eveningAfterNight(employee)
 
-    return penalty   
+	        #Two days Off after 4 Night Shifts
+	        if soft.twoDaysOffAfterNightShift(employee):
+	            penalty += 100 
+
+	        #Two days Off after 7 days of work 
+	        if soft.twoDaysOffAfterSevenDays(employee):
+	            penalty+=100
+
+	    ret[i] = penalty
+
+    return ret
 
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
-    parser.add_argument("--pop", type=int, default=10,
+    parser.add_argument("--pop", type=int, default=100,
                         help="When I know I will tell you.")
     parser.add_argument("--iter", type=int, default=10,
                         help="When I know I will tell you.")
