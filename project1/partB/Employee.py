@@ -1,6 +1,7 @@
-import numpy as np 
-class Employee:
+import numpy as np
 
+
+class Employee:
     hoursWorked = 0
     shifts = np.zeros(14)
 
@@ -8,6 +9,4 @@ class Employee:
         self.shifts = shifts
 
     def hoursWorked(self):
-
-        return 1 
-        
+        return 1
