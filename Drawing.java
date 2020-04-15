@@ -18,13 +18,13 @@ import java.io.*;
 import javax.imageio.ImageIO;
 
 public class Drawing extends Canvas{
-	public static int N = 13;
-	public static int M = 9;
-	public static int [] walls;
-	public static int [] grass;
-	public static int [] step_sequence=null;
-	public static int start_idx,terminal_idx;
-	public static int s =30;
+	public int N = 13;
+	public int M = 9;
+	public int [] walls;
+	public int [] grass;
+	public int [] step_sequence=null;
+	public int start_idx,terminal_idx;
+	public int s =30;
 
 	Drawing(int N, int M, int[] walls, int[] grass,int start_idx,int terminal_idx){
 		this.N = N;
