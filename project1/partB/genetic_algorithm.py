@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np 
 import constant as c
+import soft_constraints as soft
 
 
 def geneticAlgorithm():
@@ -39,11 +40,7 @@ def workforceSatisfied(day, dayNumber):
     return 0
 
 
-def hoursWorked(employee):
-    return np.count_nonzero(employee == 1)*c.M_HOURS +\
-           np.count_nonzero(employee == 2)*c.E_HOURS +\
-           np.count_nonzero(employee == 3)*c.N_HOURS
-        
+ 
 
 def checkHardConstraints(population):
     # As many employees as required per shift per day
@@ -56,7 +53,6 @@ def checkHardConstraints(population):
         dayNumber += 1
         if dayNumber == 7:
             dayNumber = 0
-    
     return 1
 
 
@@ -66,12 +62,21 @@ def penaltyFunction(population):
 
     for employee in population: 
         # MAX 70 hours of work (per week or per 14 days)
-        if hoursWorked(employee) > c.MAX_WORK_HOURS:
+        if soft.hoursWorked(employee) > c.MAX_WORK_HOURS:
             penalty += 1000
 
         # MAX 7 continuous days of work
-        if straightDaysWorked(employee) > c.MAX_STRAIGHT_DAYS:
+        if soft.straightDaysWorked(employee):
             penalty += 1000
+
+        # MAX 4 NIGHT SHIFTS 
+        if soft.maxNightShifts(employee):
+            #Multiply the penalty if constraint is broken more than once in schedule
+            penalty+= 1000*soft.maxNightShifts(employee)
+
+        #Morning Shift after Night Shift 
+        if soft.morningAfterNight(employee):
+            penalty += 1000*soft.morningAfterNight(employee)
 
     return penalty   
 
