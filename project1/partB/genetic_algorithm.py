@@ -3,6 +3,7 @@ import numpy as np
 import constant as c
 import soft_constraints as soft
 from argparse import ArgumentParser
+from util import minMaxNormalize 
 
 
 def geneticAlgorithm(pop):
@@ -131,7 +132,7 @@ def penaltyFunction(population):
 
         ret[i] = penalty
 
-    return ret
+    return minMaxNormalize(ret) 
 
 
 if __name__ == "__main__":
