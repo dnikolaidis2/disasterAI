@@ -11,6 +11,7 @@ def geneticAlgorithm(pop):
     initialViability = checkHardConstraints(initPop)
 
     penalties = penaltyFunction(initPop)
+    print(penalties)
 
 
 def generateRandomPopulation(pop):
@@ -68,7 +69,7 @@ def penaltyFunction(population):
         # Give a value to a population based on soft constraints
         penalty = 0
 
-        for employee in population:
+        for employee in population[i]:
             # MAX 70 hours of work (per week or per 14 days)
             if soft.hoursWorked(employee) > c.MAX_WORK_HOURS:
                 penalty += 1000
@@ -86,27 +87,27 @@ def penaltyFunction(population):
             if soft.morningAfterNight(employee):
                 penalty += 1000*soft.morningAfterNight(employee)
 
-	        # Morning Shift after Night Shift
-	        if soft.morningAfterNight(employee):
-	            penalty += 1000*soft.morningAfterNight(employee)
-	        
-	        #Morning Shift after Evening Shift
-	        if soft.morningAfterEvening(employee):
-	            penalty += 1000*soft.morningAfterEvening(employee)
-	        
-	        #Evening Shift after Night
-	        if soft.eveningAfterNight(employee):
-	            penalty += 1000*soft.eveningAfterNight(employee)
+            # Morning Shift after Night Shift
+            if soft.morningAfterNight(employee):
+                penalty += 1000*soft.morningAfterNight(employee)
 
-	        #Two days Off after 4 Night Shifts
-	        if soft.twoDaysOffAfterNightShift(employee):
-	            penalty += 100 
+            # Morning Shift after Evening Shift
+            if soft.morningAfterEvening(employee):
+                penalty += 1000*soft.morningAfterEvening(employee)
 
-	        #Two days Off after 7 days of work 
-	        if soft.twoDaysOffAfterSevenDays(employee):
-	            penalty+=100
+            # Evening Shift after Night
+            if soft.eveningAfterNight(employee):
+                penalty += 1000*soft.eveningAfterNight(employee)
 
-	    ret[i] = penalty
+            # Two days Off after 4 Night Shifts
+            if soft.twoDaysOffAfterNightShift(employee):
+                penalty += 100
+
+            # Two days Off after 7 days of work
+            if soft.twoDaysOffAfterSevenDays(employee):
+                penalty+=100
+
+        ret[i] = penalty
 
     return ret
 
