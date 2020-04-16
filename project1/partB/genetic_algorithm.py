@@ -3,6 +3,7 @@ import numpy as np
 import constant as c
 import soft_constraints as soft
 from argparse import ArgumentParser
+from util import minMaxNormalize
 
 
 def geneticAlgorithm(pop):
@@ -19,7 +20,7 @@ def generateRandomPopulation(pop):
     for i in range(pop):
         population[i] = np.random.randint(0, 4, size=(c.EMPLOYEE_COUNT, c.DAY_COUNT))
 
-    return population  
+    return population
 
 
 def workforceSatisfied(day, dayNumber):
@@ -105,11 +106,11 @@ def penaltyFunction(population):
 
             # Two days Off after 7 days of work
             if soft.twoDaysOffAfterSevenDays(employee):
-                penalty+=100
+                penalty += 100
 
         ret[i] = penalty
 
-    return ret
+    return minMaxNormalize(ret)
 
 
 if __name__ == "__main__":
