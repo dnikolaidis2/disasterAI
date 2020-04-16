@@ -11,8 +11,10 @@ def geneticAlgorithm(pop):
 
     initialViability = checkHardConstraints(initPop)
     print(initialViability)
-    #penalties = penaltyFunction(initPop)
-    #print(penalties)
+
+    penalties = penaltyFunction(initPop)
+    print(penalties)
+
 
 def generateRandomPopulation(pop):
     population = np.empty([pop, c.EMPLOYEE_COUNT, c.DAY_COUNT])
@@ -25,10 +27,11 @@ def generateRandomPopulation(pop):
                 test = workDaysIndex[0].size
                 if workDaysIndex[0].size == 25 or workDaysIndex[0].size == 20 or workDaysIndex[0].size == 15:
                     break 
-        #print(chromosome.transpose())
+        # print(chromosome.transpose())
         population[i] = chromosome.transpose()
 
     return population
+
 
 '''
 def generateRandomPopulation(pop):
@@ -39,24 +42,18 @@ def generateRandomPopulation(pop):
     return population  
 '''
 
-def workforceSatisfied(day, dayNumber):
-    employeeSchedule = np.array([[10, 10, 5, 5, 5, 5, 5],
-                                 [10, 10, 10, 5, 10, 5, 5],
-                                 [5, 5, 5, 5, 5, 5, 5]]).transpose()
-    employeeCount = np.zeros(3)
 
-    for shift in day:
-        if shift == c.MORNING:
-            employeeCount[0] += 1
-        elif shift == c.EVENING:
-            employeeCount[1] += 1
-        elif shift == c.NIGHT:
-            employeeCount[2] += 1
-    
-    if np.array_equal(employeeCount, employeeSchedule[dayNumber]):
-        return 1
+def workforceSatisfied(chromosome):
+    # A bit complicated but for every day in a chromosome calculate the counts off all unique elements
+    # with unique(). These counts are the numbers of employees working each shift on a given day.
+    # Select only shifts that are greater then 0. This table has the coverage of every shift per day.
+    workforce_coverage = np.apply_along_axis((lambda x: np.unique(x, return_counts=True)[1][1:]),
+                                             0, chromosome)
 
-    return 0
+    # For every element in workforce_coverage check that its greater or equal
+    # to the minimum requirements given by REQUIRED_COVERAGE.
+    return np.all(workforce_coverage >= c.REQUIRED_COVERAGE)
+
 
 def fitnessFunction():
     return 1
@@ -64,22 +61,10 @@ def fitnessFunction():
 
 def checkHardConstraints(population):
     pop = population.shape[0]
-    ret = np.ones(pop)
+    ret = np.zeros(pop, dtype=bool)
 
     for i in range(pop):
-        # As many employees as required per shift per day
-        populationT = population[i].transpose()
-        dayNumber = 0
-        for day in populationT:
-            if not workforceSatisfied(day, dayNumber):
-                notSatisfied = 1
-                break
-
-            dayNumber += 1
-            if dayNumber == 6:
-                dayNumber = 0
-        if notSatisfied:
-            ret[i] = 0
+        ret[i] = workforceSatisfied(population[i])
 
     return ret
 
@@ -128,16 +113,16 @@ def penaltyFunction(population):
 
             # Two days Off after 7 days of work
             if soft.twoDaysOffAfterSevenDays(employee):
-                penalty+=100
+                penalty += 100
 
         ret[i] = penalty
 
-    return minMaxNormalize(ret) 
+    return minMaxNormalize(ret)
 
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
-    parser.add_argument("--pop", type=int, default=1000,
+    parser.add_argument("--pop", type=int, default=10,
                         help="When I know I will tell you.")
     parser.add_argument("--iter", type=int, default=10,
                         help="When I know I will tell you.")
