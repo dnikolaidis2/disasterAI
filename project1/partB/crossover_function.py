@@ -15,5 +15,8 @@ def crossover(parent, method):
                 
                 children[0][i][j] = parent[indx1][i][j] 
                 children[1][i][j] = parent[indx2][i][j]
-             
+    
+    if method == 'TwoPoint':
+        point1 = np.random.randint(1, len(parent[0]))
+        point2 = np.random.randint(1, len(parent[0]))
     return children

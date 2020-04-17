@@ -201,3 +201,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     geneticAlgorithm(args.pop, args.iter_max, args.psel, args.pcross, args.pmut)
+
+#TETTTETETE
