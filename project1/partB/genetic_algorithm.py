@@ -4,16 +4,31 @@ import constant as c
 import soft_constraints as soft
 from argparse import ArgumentParser
 from util import minMaxNormalize, uniqueCounts
+from random import uniform
 
 
-def geneticAlgorithm(pop):
-    initPop = generateRandomPopulation(pop)
+def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
+    # Generate initial population
+    population = generateNotSoRandomPopulation(pop)
+    # check hard constraints
+    # TODO: do something with this check.
+    print(checkHardConstraints(population))
 
-    initialViability = checkHardConstraints(initPop)
-    print(initialViability)
+    # Fitness calculation for every chromosome.
+    fitness = fitnessFunction(population)
+    for i in range(iter_max):
+        # Generate next generation
 
-    penalties = penaltyFunction(initPop)
-    print(penalties)
+        population = selectWorthyChromosomes(population, fitness)
+
+        if terminationCriteria():
+            # Finished is true!
+            # TODO: Do stuff and exit
+            break
+    else:
+        # Reached iter_max without reaching the termination criteria
+        # TODO: Do other stuff and exit
+        pass
 
 
 def generateRandomPopulation(pop):
@@ -41,16 +56,12 @@ def generateNotSoRandomPopulation(pop):
         for day in range(c.DAY_COUNT):
             employees = np.arange(c.EMPLOYEE_COUNT)
             np.random.shuffle(employees)
-            shifts = np.split(employees, [coverage[day][0],
-                                          coverage[day][0] + coverage[day][1],
-                                          coverage[day][0] + coverage[day][1] + coverage[day][2]])
-            np.put(chromosome[day], shifts[0], 1)
-            np.put(chromosome[day], shifts[1], 2)
-            np.put(chromosome[day], shifts[2], 3)
-            # np.put(chromosome[day], shifts[3], np.random.randint(0, 4, size=shifts[3].shape))
-            pzero = 0.85
-            np.put(chromosome[day], shifts[3], np.random.choice(np.arange(4), size=shifts[3].shape,
-                                                                p=[pzero, (1-pzero)/3, (1-pzero)/3, (1-pzero)/3]))
+            shifts = np.split(employees, np.cumsum(coverage[day]))
+            np.put(chromosome[day], shifts[-1], 0)
+            shift_code = 1
+            for s in shifts[:-1]:
+                np.put(chromosome[day], s, shift_code)
+                shift_code += 1
 
         population[i] = chromosome.transpose()
 
@@ -65,6 +76,35 @@ def generateTotallyRandomPopulation(pop):
     return population
 
 
+def selectWorthyChromosomes(population, fitness):
+    # pop = population.shape[0]
+    new_population = np.zeros(population.shape, dtype=int)
+    sorted_indexes = np.argsort(fitness)
+    sorted_fitness = fitness[sorted_indexes]
+    sorted_population = population[sorted_indexes]
+
+    # Eliteness
+    new_population[-1] = sorted_population[-1]
+    sorted_fitness = sorted_fitness[:-1]
+    sorted_population = sorted_population[:-1]
+
+    fitness_cumsum = minMaxNormalize(np.cumsum(sorted_fitness))
+
+    # Roulette wheel selection
+    for i in range(fitness_cumsum.size):
+        prob = uniform(0, 1)
+        roulette = list(fitness_cumsum.copy())
+        roulette.append(prob)
+        roulette = sorted(roulette)
+        new_population[i] = sorted_population[roulette.index(prob)]
+
+    return new_population
+
+
+def terminationCriteria():
+    return False
+
+
 def workforceSatisfied(chromosome):
     # A bit complicated but for every day in a chromosome calculate the counts off all unique elements
     # with unique(). These counts are the numbers of employees working each shift on a given day.
@@ -73,11 +113,11 @@ def workforceSatisfied(chromosome):
 
     # For every element in workforce_coverage check that its greater or equal
     # to the minimum requirements given by REQUIRED_COVERAGE.
-    return np.all(workforce_coverage >= c.REQUIRED_COVERAGE)
+    return np.all(workforce_coverage == c.REQUIRED_COVERAGE)
 
 
-def fitnessFunction():
-    return 1
+def fitnessFunction(population):
+    return 1 - minMaxNormalize(penaltyFunction(population), c.MIN_PENALTY, c.MAX_PENALTY)
 
 
 def checkHardConstraints(population):
@@ -139,18 +179,18 @@ def penaltyFunction(population):
                 penalty += 1*soft.dayOffWorkDayoff(employee)
             
             if soft.workInWeekends(employee):
-                penalty +=1
+                penalty += 1
 
         ret[i] = penalty
 
-    return minMaxNormalize(ret)
+    return ret
 
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
     parser.add_argument("--pop", type=int, default=100,
                         help="When I know I will tell you.")
-    parser.add_argument("--iter", type=int, default=10,
+    parser.add_argument("--iter-max", type=int, default=10,
                         help="When I know I will tell you.")
     parser.add_argument("--psel", type=float, default=.1,
                         help="When I know I will tell you.")
@@ -160,4 +200,4 @@ if __name__ == "__main__":
                         help="When I know I will tell you.")
     args = parser.parse_args()
 
-    geneticAlgorithm(args.pop)
+    geneticAlgorithm(args.pop, args.iter_max, args.psel, args.pcross, args.pmut)

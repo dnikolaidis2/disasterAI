@@ -1,9 +1,14 @@
 from numpy import unique, argwhere, take
 
 
-def minMaxNormalize(array):
-    array = ((array - array.min())/(array.max() - array.min())).reshape(array.shape)
-    return array
+def minMaxNormalize(array, min=None, max=None):
+    if min is None:
+        min = array.min()
+
+    if max is None:
+        max = array.max()
+
+    return ((array - min)/(max - min)).reshape(array.shape)
 
 
 def uniqueCounts(array, select=None):
