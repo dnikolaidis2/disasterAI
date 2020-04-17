@@ -18,5 +18,7 @@ def crossover(parent, method):
     
     if method == 'TwoPoint':
         point1 = np.random.randint(1, len(parent[0]))
-        point2 = np.random.randint(1, len(parent[0]))
+        point2 = np.random.randint(point1, len(parent[0]))
+        children[0] = np.vstack((parent[0][0:point1], parent[1][point1:point2], parent[0][point2:]))
+        children[1] = np.vstack((parent[1][0:point1], parent[0][point1:point2], parent[1][point2:]))
     return children
