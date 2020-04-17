@@ -66,8 +66,41 @@ def eveningAfterNight(employee):
 
 
 def twoDaysOffAfterNightShift(employee):
-    return 1
-
+    preferedSchedule = [3, 3, 3, 3, 0, 0]
+    for i in range(len(employee[:-6])):
+        if np.array_equal(employee[i:i+7],preferedSchedule):
+            return 1
+    return 0
 
 def twoDaysOffAfterSevenDays(employee):
-    return 1
+    daysOfWork = 0
+    for i in range(len(employee[:-2])):
+        if employee[i] != c.DAY_OFF:
+            daysOfWork+=1
+        
+        if daysOfWork == c.MAX_WORK_DAYS:
+            if employee[i+1] == c.DAY_OFF and employee[i+2] == c.DAY_OFF:
+                return 1
+    return 0
+
+def workDayoffWork(employee):
+    timesViolated = 0
+    for i in range(len(employee[:-2])):
+        if employee[i] != c.DAY_OFF and employee[i+1] == c.DAY_OFF and employee[i+2] != c.DAY_OFF: 
+            timesViolated += 1
+    return timesViolated
+
+def dayOffWorkDayoff(employee):
+    timesViolated = 0
+    for i in range(len(employee[:-2])):
+        if employee[i] == c.DAY_OFF and employee[i+1] != c.DAY_OFF and employee[i+2] == c.DAY_OFF: 
+            timesViolated += 1
+    return timesViolated
+
+def workInWeekends(employee):
+    if employee[5] != c.DAY_OFF or employee[6] != c.DAY_OFF:
+        if employee[12] != c.DAY_OFF or employee[13] != c.DAY_OFF:
+            return 1
+    else:
+        return 0 
+

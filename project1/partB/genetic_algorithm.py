@@ -116,25 +116,30 @@ def penaltyFunction(population):
             if soft.morningAfterNight(employee):
                 penalty += 1000*soft.morningAfterNight(employee)
 
-            # Morning Shift after Night Shift
-            if soft.morningAfterNight(employee):
-                penalty += 1000*soft.morningAfterNight(employee)
-
             # Morning Shift after Evening Shift
             if soft.morningAfterEvening(employee):
-                penalty += 1000*soft.morningAfterEvening(employee)
+                penalty += 800*soft.morningAfterEvening(employee)
 
             # Evening Shift after Night
             if soft.eveningAfterNight(employee):
-                penalty += 1000*soft.eveningAfterNight(employee)
+                penalty += 800*soft.eveningAfterNight(employee)
 
             # Two days Off after 4 Night Shifts
-            if soft.twoDaysOffAfterNightShift(employee):
+            if not soft.twoDaysOffAfterNightShift(employee):
                 penalty += 100
 
             # Two days Off after 7 days of work
-            if soft.twoDaysOffAfterSevenDays(employee):
+            if not soft.twoDaysOffAfterSevenDays(employee):
                 penalty += 100
+            
+            if soft.workDayoffWork(employee):
+                penalty += 1*soft.workDayoffWork(employee)
+            
+            if soft.dayOffWorkDayoff(employee):
+                penalty += 1*soft.dayOffWorkDayoff(employee)
+            
+            if soft.workInWeekends(employee):
+                penalty +=1
 
         ret[i] = penalty
 
@@ -143,7 +148,7 @@ def penaltyFunction(population):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
-    parser.add_argument("--pop", type=int, default=10,
+    parser.add_argument("--pop", type=int, default=100,
                         help="When I know I will tell you.")
     parser.add_argument("--iter", type=int, default=10,
                         help="When I know I will tell you.")
