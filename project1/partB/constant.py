@@ -2,6 +2,7 @@ from numpy import concatenate, array
 
 DAY_COUNT = 14
 EMPLOYEE_COUNT = 30
+SHIFT_COUNT = 3
 
 DAY_OFF = 0
 MORNING = 1

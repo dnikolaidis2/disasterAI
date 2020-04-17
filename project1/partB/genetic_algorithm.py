@@ -3,7 +3,7 @@ import numpy as np
 import constant as c
 import soft_constraints as soft
 from argparse import ArgumentParser
-from util import minMaxNormalize 
+from util import minMaxNormalize, uniqueCounts
 
 
 def geneticAlgorithm(pop):
@@ -18,7 +18,7 @@ def geneticAlgorithm(pop):
 
 def generateRandomPopulation(pop):
     population = np.empty([pop, c.EMPLOYEE_COUNT, c.DAY_COUNT])
-    for i in range(pop): 
+    for i in range(pop):
         chromosome = np.empty([c.DAY_COUNT, c.EMPLOYEE_COUNT], dtype=int)
         for day in range(c.DAY_COUNT):
             while True:
@@ -26,29 +26,50 @@ def generateRandomPopulation(pop):
                 workDaysIndex = np.nonzero(chromosome[day])
                 test = workDaysIndex[0].size
                 if workDaysIndex[0].size == 25 or workDaysIndex[0].size == 20 or workDaysIndex[0].size == 15:
-                    break 
+                    break
         # print(chromosome.transpose())
         population[i] = chromosome.transpose()
 
     return population
 
 
-'''
-def generateRandomPopulation(pop):
+def generateNotSoRandomPopulation(pop):
+    population = np.empty([pop, c.EMPLOYEE_COUNT, c.DAY_COUNT])
+    for i in range(pop):
+        chromosome = np.empty((c.DAY_COUNT, c.EMPLOYEE_COUNT), dtype=int)
+        coverage = c.REQUIRED_COVERAGE.transpose()
+        for day in range(c.DAY_COUNT):
+            employees = np.arange(c.EMPLOYEE_COUNT)
+            np.random.shuffle(employees)
+            shifts = np.split(employees, [coverage[day][0],
+                                          coverage[day][0] + coverage[day][1],
+                                          coverage[day][0] + coverage[day][1] + coverage[day][2]])
+            np.put(chromosome[day], shifts[0], 1)
+            np.put(chromosome[day], shifts[1], 2)
+            np.put(chromosome[day], shifts[2], 3)
+            # np.put(chromosome[day], shifts[3], np.random.randint(0, 4, size=shifts[3].shape))
+            pzero = 0.85
+            np.put(chromosome[day], shifts[3], np.random.choice(np.arange(4), size=shifts[3].shape,
+                                                                p=[pzero, (1-pzero)/3, (1-pzero)/3, (1-pzero)/3]))
+
+        population[i] = chromosome.transpose()
+
+    return population
+
+
+def generateTotallyRandomPopulation(pop):
     population = np.empty([pop, c.EMPLOYEE_COUNT, c.DAY_COUNT])
     for i in range(pop):
         population[i] = np.random.randint(0, 4, size=(c.EMPLOYEE_COUNT, c.DAY_COUNT))
 
-    return population  
-'''
+    return population
 
 
 def workforceSatisfied(chromosome):
     # A bit complicated but for every day in a chromosome calculate the counts off all unique elements
     # with unique(). These counts are the numbers of employees working each shift on a given day.
     # Select only shifts that are greater then 0. This table has the coverage of every shift per day.
-    workforce_coverage = np.apply_along_axis((lambda x: np.unique(x, return_counts=True)[1][1:]),
-                                             0, chromosome)
+    workforce_coverage = np.apply_along_axis(uniqueCounts, 0, chromosome, 0)
 
     # For every element in workforce_coverage check that its greater or equal
     # to the minimum requirements given by REQUIRED_COVERAGE.
