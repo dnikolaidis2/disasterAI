@@ -2,8 +2,9 @@ import numpy as np
 import random
 import constant as c 
 
+
 def crossover(parent, method):
-    #Each gene is selected from either parent with equal probability  
+    # Each gene is selected from either parent with equal probability
     children = np.empty([2, c.EMPLOYEE_COUNT, c.DAY_COUNT])
     if method == 'Uniform':
         for i in range(len(parent[0])):

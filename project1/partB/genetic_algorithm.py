@@ -117,7 +117,13 @@ def workforceSatisfied(chromosome):
 
 
 def fitnessFunction(population):
-    return 1 - minMaxNormalize(penaltyFunction(population), c.MIN_PENALTY, c.MAX_PENALTY)
+    penalty = penaltyFunction(population)
+    penalty_norm = minMaxNormalize(penalty, c.MIN_PENALTY, c.MAX_PENALTY)
+
+    np.testing.assert_array_less(-penalty_norm, 0, f"New min found! {penalty[penalty.argmin()]}")
+    np.testing.assert_array_less(penalty_norm, 1.0000000000000001, f"New max found! {penalty[penalty.argmax()]}")
+
+    return 1 - penalty_norm
 
 
 def checkHardConstraints(population):
@@ -201,5 +207,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     geneticAlgorithm(args.pop, args.iter_max, args.psel, args.pcross, args.pmut)
-
-#TETTTETETE
