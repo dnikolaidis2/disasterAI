@@ -21,7 +21,7 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
     print(meanPenaltiesList)
     for i in range(iter_max):
         # Generate next generation
-
+        fitness = fitnessFunction(population)
         population = selectWorthyChromosomes(population, fitness)
         population = cross.crossover(population, 'TwoPoint', pcross)
 
@@ -117,9 +117,13 @@ def selectWorthyChromosomes(population, fitness):
 
 def terminationCriteria(meanPenalties):
 
-    # Criteria 1
     print(meanPenalties)
-    # Criteria 2
+    # Criteria 1 : Mean penalties stop decreasing - Algorithm is not improving 
+    s = meanPenalties.size()
+    if stat.stdev(meanPenalties[s-4:s-1]) < c.MIN_PEANLTY_DIFFERENTIATION:
+        print('Algorithm is not improving')
+    
+    # Criteria 2 : Reached Max Iterations 
 
     return False
 

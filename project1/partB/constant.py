@@ -20,6 +20,8 @@ MAX_NIGHT_SHIFTS = 4
 MAX_PENALTY = 94776
 MIN_PENALTY = 46703
 
+MIN_PEANLTY_DIFFERENTIATION = 500
+
 REQUIRED_WORKFORCE_COVERAGE_PER_WEEK = array([[10, 10, 5, 5, 5, 5, 5],
                                               [10, 10, 10, 5, 10, 5, 5],
                                               [5, 5, 5, 5, 5, 5, 5]])
