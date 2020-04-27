@@ -22,11 +22,11 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
     print(meanPenaltiesList)
     for i in range(iter_max):
         # Generate next generation
-        fitness = fitnessFunction(population)
         population = selectWorthyChromosomes(population, fitness)
         population = cross.crossover(population, 'TwoPoint', pcross)
 
-        # population = population[np.argwhere(checkHardConstraints(population) == True)]
+        population = population[np.argwhere(checkHardConstraints(population) == True).flatten()]
+        fitness = fitnessFunction(population)
         meanPenaltiesList.append(penaltyFunction(population).mean())
 
         if terminationCriteria(meanPenaltiesList):
