@@ -2,6 +2,7 @@
 import numpy as np 
 import constant as c
 import soft_constraints as soft
+import statistics as stat
 from argparse import ArgumentParser
 from util import minMaxNormalize, uniqueCounts
 from random import uniform
@@ -119,9 +120,10 @@ def terminationCriteria(meanPenalties):
 
     print(meanPenalties)
     # Criteria 1 : Mean penalties stop decreasing - Algorithm is not improving 
-    s = meanPenalties.size()
-    if stat.stdev(meanPenalties[s-4:s-1]) < c.MIN_PEANLTY_DIFFERENTIATION:
-        print('Algorithm is not improving')
+    s = len(meanPenalties)
+    if s > 4:
+        if stat.stdev(meanPenalties[s-4:s-1]) < c.MIN_PEANLTY_DIFFERENTIATION:
+            print('Algorithm is not improving')
     
     # Criteria 2 : Reached Max Iterations 
 
