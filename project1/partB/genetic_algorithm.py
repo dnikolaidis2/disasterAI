@@ -2,6 +2,7 @@
 import numpy as np 
 import constant as c
 import soft_constraints as soft
+import statistics as stat
 from argparse import ArgumentParser
 from util import minMaxNormalize, uniqueCounts
 from random import uniform
@@ -17,13 +18,14 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
 
     # Fitness calculation for every chromosome.
     fitness = fitnessFunction(population)
+    meanPenaltiesList = []
     for i in range(iter_max):
         # Generate next generation
 
         population = selectWorthyChromosomes(population, fitness)
         population = cross.crossover(population, 'TwoPoint', pcross)
-
-        if terminationCriteria():
+        meanPenaltiesList.append(stat.mean(penaltyFunction(population)))
+        if terminationCriteria(meanPenaltiesList):
             # Finished is true!
             # TODO: Do stuff and exit
             break
@@ -110,7 +112,12 @@ def selectWorthyChromosomes(population, fitness):
     return new_population[sorted_indexes]
 
 
-def terminationCriteria():
+def terminationCriteria(meanPenalties):
+
+    # Criteria 1
+    print(meanPenalties)
+    # Criteria 2
+
     return False
 
 
@@ -143,6 +150,8 @@ def checkHardConstraints(population):
         ret[i] = workforceSatisfied(population[i])
 
     return ret
+
+
 
 
 def penaltyFunction(population):
