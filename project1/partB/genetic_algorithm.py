@@ -2,7 +2,6 @@
 import numpy as np 
 import constant as c
 import soft_constraints as soft
-import statistics as stat
 from argparse import ArgumentParser
 from util import minMaxNormalize, uniqueCounts
 from random import uniform
@@ -18,13 +17,17 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
 
     # Fitness calculation for every chromosome.
     fitness = fitnessFunction(population)
-    meanPenaltiesList = []
+    meanPenaltiesList = [penaltyFunction(population).mean()]
+    print(meanPenaltiesList)
     for i in range(iter_max):
         # Generate next generation
 
         population = selectWorthyChromosomes(population, fitness)
         population = cross.crossover(population, 'TwoPoint', pcross)
-        meanPenaltiesList.append(stat.mean(penaltyFunction(population)))
+
+        # population = population[np.argwhere(checkHardConstraints(population) == True)]
+        meanPenaltiesList.append(penaltyFunction(population).mean())
+
         if terminationCriteria(meanPenaltiesList):
             # Finished is true!
             # TODO: Do stuff and exit
@@ -125,7 +128,7 @@ def workforceSatisfied(chromosome):
     # A bit complicated but for every day in a chromosome calculate the counts off all unique elements
     # with unique(). These counts are the numbers of employees working each shift on a given day.
     # Select only shifts that are greater then 0. This table has the coverage of every shift per day.
-    workforce_coverage = np.apply_along_axis(uniqueCounts, 0, chromosome, 0)
+    workforce_coverage = np.apply_along_axis(uniqueCounts, 0, chromosome, 0, np.array([1, 2, 3]))
 
     # For every element in workforce_coverage check that its greater or equal
     # to the minimum requirements given by REQUIRED_COVERAGE.
@@ -212,9 +215,9 @@ def penaltyFunction(population):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
-    parser.add_argument("--pop", type=int, default=100,
+    parser.add_argument("--pop", type=int, default=1000,
                         help="When I know I will tell you.")
-    parser.add_argument("--iter-max", type=int, default=10,
+    parser.add_argument("--iter-max", type=int, default=100,
                         help="When I know I will tell you.")
     parser.add_argument("--psel", type=float, default=.1,
                         help="When I know I will tell you.")
