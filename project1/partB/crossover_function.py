@@ -5,19 +5,20 @@ import constant as c
 
 def crossover(population, method, pcross):
     # Considering the last chromosome as elite, do we crossover it?
-    count = 0
-    crossPopulation = []
+    crossPopulation = np.empty(population.shape)
     for i in range(0, (len(population)-2), 2):
         crossPass = np.random.choice((1, 0), p=[pcross, 1-pcross])
         if crossPass:
-            children = crossover_function(np.array([population[i], population[i+1]]), method='TwoPoint')
-            crossPopulation[count] = children[0]
-            crossPopulation[count+1] = children[1]
-            count += 2
+            children = crossover_methods(np.array([population[i], population[i+1]]), method=method)
+            crossPopulation[i] = children[0]
+            crossPopulation[i+1] = children[1]
+        else: 
+            crossPopulation[i] = population[i]
+            crossPopulation[i+1] = population[i+1]
     return crossPopulation
 
 
-def crossover_function(parent, method):
+def crossover_methods(parent, method):
     # Each gene is selected from either parent with equal probability
     children = np.empty([2, c.EMPLOYEE_COUNT, c.DAY_COUNT])
     if method == 'Uniform':

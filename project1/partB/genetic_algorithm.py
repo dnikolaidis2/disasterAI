@@ -21,7 +21,7 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
         # Generate next generation
 
         population = selectWorthyChromosomes(population, fitness)
-        cross.crossover(population, 'TwoPoint', pcross)
+        population = cross.crossover(population, 'TwoPoint', pcross)
 
         if terminationCriteria():
             # Finished is true!
