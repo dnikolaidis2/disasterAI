@@ -5,6 +5,7 @@ import soft_constraints as soft
 from argparse import ArgumentParser
 from util import minMaxNormalize, uniqueCounts
 from random import uniform
+import crossover_function as cross
 
 
 def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
@@ -20,7 +21,7 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
         # Generate next generation
 
         population = selectWorthyChromosomes(population, fitness)
-
+        cross.crossover(population, 'TwoPoint', pcross)
         if terminationCriteria():
             # Finished is true!
             # TODO: Do stuff and exit
@@ -200,7 +201,7 @@ if __name__ == "__main__":
                         help="When I know I will tell you.")
     parser.add_argument("--psel", type=float, default=.1,
                         help="When I know I will tell you.")
-    parser.add_argument("--pcross", type=float, default=.1,
+    parser.add_argument("--pcross", type=float, default=0.5,
                         help="When I know I will tell you.")
     parser.add_argument("--pmut", type=float, default=.1,
                         help="When I know I will tell you.")

@@ -2,9 +2,23 @@ import numpy as np
 import random
 import constant as c 
 
+def crossover(population, method, pcross):
+    #Considering the last chromosome as elit, do we crossover it? 
+    count = 0
+    crossPopulation = []
+    for i in range(0, (len(population)-2), 2):
+        crossPass = np.random.choice((1,0), p=[pcross, 1-pcross])
+        if crossPass:
+            children = crossover_function(np.array([population[i], population[i+1]]), method='TwoPoint')
+            crossedPopulation[count] = children[0]
+            crossedPopulation[count+1] = children[1]
+            count += 2
+    return crossedPopulation
 
-def crossover(parent, method):
-    # Each gene is selected from either parent with equal probability
+
+
+def crossover_function(parent, method):
+    #Each gene is selected from either parent with equal probability  
     children = np.empty([2, c.EMPLOYEE_COUNT, c.DAY_COUNT])
     if method == 'Uniform':
         for i in range(len(parent[0])):
