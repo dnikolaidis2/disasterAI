@@ -89,6 +89,9 @@ def selectWorthyChromosomes(population, fitness):
     new_population[-1] = sorted_population[-1]
     sorted_fitness = sorted_fitness[:-1]
     sorted_population = sorted_population[:-1]
+    new_population[-2] = sorted_population[-1]
+    sorted_fitness = sorted_fitness[:-1]
+    sorted_population = sorted_population[:-1]
 
     fitness_cumsum = minMaxNormalize(np.cumsum(sorted_fitness))
 
@@ -100,7 +103,11 @@ def selectWorthyChromosomes(population, fitness):
         roulette = sorted(roulette)
         new_population[i] = sorted_population[roulette.index(prob)]
 
-    return new_population
+    # Sort new population
+    new_fitness = fitnessFunction(new_population)
+    sorted_indexes = np.argsort(new_fitness)
+
+    return new_population[sorted_indexes]
 
 
 def terminationCriteria():
