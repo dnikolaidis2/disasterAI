@@ -22,6 +22,7 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
 
         population = selectWorthyChromosomes(population, fitness)
         cross.crossover(population, 'TwoPoint', pcross)
+
         if terminationCriteria():
             # Finished is true!
             # TODO: Do stuff and exit
