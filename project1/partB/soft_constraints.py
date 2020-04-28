@@ -9,6 +9,7 @@ def hoursWorked(employee):
 
 
 def straightDaysWorked(employee):
+    '''
     straightDays = 0
     for day in employee:
         straightDays += 1
@@ -18,6 +19,9 @@ def straightDaysWorked(employee):
 
         if straightDays > c.MAX_WORK_DAYS:
             return 1
+    '''
+    if True in np.all(rolling_window(employee, 7) == np.ones(7, dtype=int), axis=1):
+        return 1
     return 0
 
 
@@ -72,6 +76,7 @@ def twoDaysOffAfterNightShift(employee):
             return 1
     return 0
 
+
 def twoDaysOffAfterSevenDays(employee):
     daysOfWork = 0
     for i in range(len(employee[:-2])):
@@ -83,6 +88,25 @@ def twoDaysOffAfterSevenDays(employee):
                 return 1
     return 0
 
+
+def workDayoffWork(employee):
+    if True in np.all(rolling_window(employee, 3) == [1, 0, 1], axis=1):
+        return 1
+    return 0
+
+def dayOffWorkDayoff(employee):
+    if True in np.all(rolling_window(employee, 3) == [0, 1, 0], axis=1):
+        return 1
+    return 0
+
+def workInWeekends(employee):
+    if employee[5] != c.DAY_OFF or employee[6] != c.DAY_OFF:
+        if employee[12] != c.DAY_OFF or employee[13] != c.DAY_OFF:
+            return 1
+    else:
+        return 0
+
+'''
 def workDayoffWork(employee):
     timesViolated = 0
     for i in range(len(employee[:-2])):
@@ -97,10 +121,15 @@ def dayOffWorkDayoff(employee):
             timesViolated += 1
     return timesViolated
 
+
 def workInWeekends(employee):
     if employee[5] != c.DAY_OFF or employee[6] != c.DAY_OFF:
         if employee[12] != c.DAY_OFF or employee[13] != c.DAY_OFF:
             return 1
     else:
         return 0 
-
+'''
+def rolling_window(a, size):
+    shape = a.shape[:-1] + (a.shape[-1] - size + 1, size)
+    strides = a.strides + (a. strides[-1],)
+    return np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)

@@ -23,11 +23,11 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
     for i in range(iter_max):
         # Generate next generation
         population = selectWorthyChromosomes(population, fitness)
-        population = cross.crossover(population, 'TwoPoint', pcross)
+        population = cross.crossover(population, 'Uniform', pcross)
 
         population = population[np.argwhere(checkHardConstraints(population) == True).flatten()]
         fitness = fitnessFunction(population)
-        meanPenaltiesList.append(penaltyFunction(population).mean())
+        meanPenaltiesList.append(penaltyFunction(population).min())
 
         if terminationCriteria(meanPenaltiesList):
             # Finished is true!
@@ -176,10 +176,6 @@ def penaltyFunction(population):
             if soft.hoursWorked(employee) > c.MAX_WORK_HOURS:
                 penalty += 1000
 
-            # MAX 7 continuous days of work
-            if soft.straightDaysWorked(employee):
-                penalty += 1000
-
             # MAX 4 NIGHT SHIFTS
             if soft.maxNightShifts(employee):
                 # Multiply the penalty if constraint is broken more than once in schedule
@@ -200,6 +196,12 @@ def penaltyFunction(population):
             # Two days Off after 4 Night Shifts
             if not soft.twoDaysOffAfterNightShift(employee):
                 penalty += 100
+
+            employee = np.where(employee > 0, 1, 0)
+
+            # MAX 7 continuous days of work
+            if soft.straightDaysWorked(employee):
+                penalty += 1000
 
             # Two days Off after 7 days of work
             if not soft.twoDaysOffAfterSevenDays(employee):
@@ -227,7 +229,7 @@ if __name__ == "__main__":
                         help="When I know I will tell you.")
     parser.add_argument("--psel", type=float, default=.1,
                         help="When I know I will tell you.")
-    parser.add_argument("--pcross", type=float, default=0.5,
+    parser.add_argument("--pcross", type=float, default=0.7,
                         help="When I know I will tell you.")
     parser.add_argument("--pmut", type=float, default=.1,
                         help="When I know I will tell you.")
