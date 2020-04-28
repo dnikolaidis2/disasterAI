@@ -24,6 +24,7 @@ MIN_PENALTY_DIFFERENTIATION = 100
 
 PREFERRED_SCHEDULE = array([3, 3, 3, 3, 0, 0])
 EXPECTED_ELEMENTS = array([1, 2, 3])
+ALLOWED_VALUES = array([0, 1, 2, 3])
 
 REQUIRED_WORKFORCE_COVERAGE_PER_WEEK = array([[10, 10, 5, 5, 5, 5, 5],
                                               [10, 10, 10, 5, 10, 5, 5],

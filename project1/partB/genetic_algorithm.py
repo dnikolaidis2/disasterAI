@@ -40,7 +40,7 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
         print("Crossing over...")
         population = cross.crossover(population, 'Uniform', pcross)
         print("Mutating ...")
-        population = mutate(population, 'swap-mutation', pmut, .33)
+        population = mutate(population, 'bit-flit-mutation', pmut, .33)
 
         hard_constraint_check = checkHardConstraints(population)
         population = population[np.argwhere(hard_constraint_check == True).flatten()]
@@ -118,6 +118,9 @@ def selectWorthyChromosomes(population, fitness):
     sorted_fitness = sorted_fitness[:-2]
     sorted_population = sorted_population[:-2]
 
+    if sorted_fitness.size == 0:
+        return new_population
+
     fitness_cumsum = minMaxNormalize(np.cumsum(sorted_fitness))
 
     # Roulette wheel selection
@@ -136,18 +139,21 @@ def selectWorthyChromosomes(population, fitness):
 
 
 def mutate(population, type, pmut, pmut_depth):
-    if type == 'swap-mutation':
-        for i in range(population.shape[0]-2):
-            if uniform(0, 1) <= pmut:
-                chromosome = population[i].transpose()
-                for j in range(chromosome.shape[0]):
-                    if uniform(0, 1) <= pmut_depth:
+    for i in range(population.shape[0]-2):
+        if uniform(0, 1) <= pmut:
+            chromosome = population[i].transpose()
+            for j in range(chromosome.shape[0]):
+                if uniform(0, 1) <= pmut_depth:
+                    if type == 'swap-mutation':
                         inds = np.random.choice(chromosome.shape[1], 2)
                         tmp = chromosome[j][inds[0]]
                         chromosome[j][inds[0]] = chromosome[j][inds[1]]
                         chromosome[j][inds[1]] = tmp
-                population[i] = chromosome.transpose()
+                    elif type == "bit-flit-mutation":
+                        ind = np.random.choice(chromosome.shape[1], 1)
+                        chromosome[j][ind] = np.random.choice(c.ALLOWED_VALUES)
 
+            population[i] = chromosome.transpose()
     return population
 
 
