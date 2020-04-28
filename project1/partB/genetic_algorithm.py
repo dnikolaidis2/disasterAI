@@ -17,17 +17,20 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
     print(checkHardConstraints(population))
 
     # Fitness calculation for every chromosome.
-    fitness = fitnessFunction(population)
-    meanPenaltiesList = [penaltyFunction(population).mean()]
+    penalties = penaltyFunction(population)
+    fitness = fitnessFunction(population, penalties)
+    meanPenaltiesList = [penalties.mean()]
     print(meanPenaltiesList)
+
     for i in range(iter_max):
         # Generate next generation
         population = selectWorthyChromosomes(population, fitness)
         population = cross.crossover(population, 'Uniform', pcross)
 
         population = population[np.argwhere(checkHardConstraints(population) == True).flatten()]
-        fitness = fitnessFunction(population)
-        meanPenaltiesList.append(penaltyFunction(population).min())
+        penalties = penaltyFunction(population)
+        fitness = fitnessFunction(population, penalties)
+        meanPenaltiesList.append(penalties.mean())
 
         if terminationCriteria(meanPenaltiesList):
             # Finished is true!
@@ -87,17 +90,18 @@ def generateTotallyRandomPopulation(pop):
 def selectWorthyChromosomes(population, fitness):
     # pop = population.shape[0]
     new_population = np.zeros(population.shape, dtype=int)
+    new_fitness = np.zeros(fitness.shape)
     sorted_indexes = np.argsort(fitness)
     sorted_fitness = fitness[sorted_indexes]
     sorted_population = population[sorted_indexes]
 
     # Eliteness
     new_population[-1] = sorted_population[-1]
-    sorted_fitness = sorted_fitness[:-1]
-    sorted_population = sorted_population[:-1]
-    new_population[-2] = sorted_population[-1]
-    sorted_fitness = sorted_fitness[:-1]
-    sorted_population = sorted_population[:-1]
+    new_population[-2] = sorted_population[-2]
+    new_fitness[-1] = sorted_fitness[-1]
+    new_fitness[-2] = sorted_fitness[-2]
+    sorted_fitness = sorted_fitness[:-2]
+    sorted_population = sorted_population[:-2]
 
     fitness_cumsum = minMaxNormalize(np.cumsum(sorted_fitness))
 
@@ -108,9 +112,9 @@ def selectWorthyChromosomes(population, fitness):
         roulette.append(prob)
         roulette = sorted(roulette)
         new_population[i] = sorted_population[roulette.index(prob)]
+        new_fitness[i] = sorted_fitness[roulette.index(prob)]
 
     # Sort new population
-    new_fitness = fitnessFunction(new_population)
     sorted_indexes = np.argsort(new_fitness)
 
     return new_population[sorted_indexes]
@@ -122,7 +126,7 @@ def terminationCriteria(meanPenalties):
     # Criteria 1 : Mean penalties stop decreasing - Algorithm is not improving 
     s = len(meanPenalties)
     if s > 4:
-        if stat.stdev(meanPenalties[s-4:s-1]) < c.MIN_PEANLTY_DIFFERENTIATION:
+        if stat.stdev(meanPenalties[s-4:s-1]) < c.MIN_PENALTY_DIFFERENTIATION:
             print('Algorithm is not improving')
     
     # Criteria 2 : Reached Max Iterations 
@@ -130,19 +134,21 @@ def terminationCriteria(meanPenalties):
     return False
 
 
-def workforceSatisfied(chromosome):
+def workforceSatisfied(chromosome, expected_elems):
     # A bit complicated but for every day in a chromosome calculate the counts off all unique elements
     # with unique(). These counts are the numbers of employees working each shift on a given day.
     # Select only shifts that are greater then 0. This table has the coverage of every shift per day.
-    workforce_coverage = np.apply_along_axis(uniqueCounts, 0, chromosome, 0, np.array([1, 2, 3]))
+    workforce_coverage = np.apply_along_axis(uniqueCounts, 0, chromosome, 0, expected_elems)
 
     # For every element in workforce_coverage check that its greater or equal
     # to the minimum requirements given by REQUIRED_COVERAGE.
     return np.all(workforce_coverage == c.REQUIRED_COVERAGE)
 
 
-def fitnessFunction(population):
-    penalty = penaltyFunction(population)
+def fitnessFunction(population, penalty=None):
+    if penalty is None:
+        penalty = penaltyFunction(population)
+
     penalty_norm = minMaxNormalize(penalty, c.MIN_PENALTY, c.MAX_PENALTY)
 
     np.testing.assert_array_less(-penalty_norm, 0, f"New min found! {penalty[penalty.argmin()]}")
@@ -156,11 +162,9 @@ def checkHardConstraints(population):
     ret = np.zeros(pop, dtype=bool)
 
     for i in range(pop):
-        ret[i] = workforceSatisfied(population[i])
+        ret[i] = workforceSatisfied(population[i], c.EXPECTED_ELEMENTS)
 
     return ret
-
-
 
 
 def penaltyFunction(population):
@@ -182,21 +186,25 @@ def penaltyFunction(population):
                 penalty += 1000
 
             # MAX 4 NIGHT SHIFTS
-            if soft.maxNightShifts(employee):
+            val = soft.maxNightShifts(employee)
+            if val:
                 # Multiply the penalty if constraint is broken more than once in schedule
-                penalty += 1000*soft.maxNightShifts(employee)
+                penalty += 1000*val
 
             # Morning Shift after Night Shift
-            if soft.morningAfterNight(employee):
-                penalty += 1000*soft.morningAfterNight(employee)
+            val = soft.morningAfterNight(employee)
+            if val:
+                penalty += 1000*val
 
             # Morning Shift after Evening Shift
-            if soft.morningAfterEvening(employee):
-                penalty += 800*soft.morningAfterEvening(employee)
+            val = soft.morningAfterEvening(employee)
+            if val:
+                penalty += 800*val
 
             # Evening Shift after Night
-            if soft.eveningAfterNight(employee):
-                penalty += 800*soft.eveningAfterNight(employee)
+            val = soft.eveningAfterNight(employee)
+            if val:
+                penalty += 800*val
 
             # Two days Off after 4 Night Shifts
             if not soft.twoDaysOffAfterNightShift(employee):
@@ -205,12 +213,14 @@ def penaltyFunction(population):
             # Two days Off after 7 days of work
             if not soft.twoDaysOffAfterSevenDays(employee):
                 penalty += 100
-            
-            if soft.workDayoffWork(employee):
-                penalty += 1*soft.workDayoffWork(employee)
-            
-            if soft.dayOffWorkDayoff(employee):
-                penalty += 1*soft.dayOffWorkDayoff(employee)
+
+            val = soft.workDayoffWork(employee)
+            if val:
+                penalty += 1*val
+
+            val = soft.dayOffWorkDayoff(employee)
+            if val:
+                penalty += 1*val
             
             if soft.workInWeekends(employee):
                 penalty += 1
@@ -222,9 +232,9 @@ def penaltyFunction(population):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
-    parser.add_argument("--pop", type=int, default=1000,
+    parser.add_argument("--pop", type=int, default=2000,
                         help="When I know I will tell you.")
-    parser.add_argument("--iter-max", type=int, default=100,
+    parser.add_argument("--iter-max", type=int, default=10,
                         help="When I know I will tell you.")
     parser.add_argument("--psel", type=float, default=.1,
                         help="When I know I will tell you.")

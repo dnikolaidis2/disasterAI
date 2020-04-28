@@ -1,5 +1,5 @@
 import numpy as np
-import constant as c  
+import constant as c
 
 
 def hoursWorked(employee):
@@ -67,9 +67,8 @@ def eveningAfterNight(employee):
 
 
 def twoDaysOffAfterNightShift(employee):
-    preferedSchedule = [3, 3, 3, 3, 0, 0]
     for i in range(len(employee[:-6])):
-        if np.array_equal(employee[i:i+7],preferedSchedule):
+        if np.array_equal(employee[i:i+7], c.PREFERRED_SCHEDULE):
             return 1
     return 0
 
@@ -92,6 +91,7 @@ def workDayoffWork(employee):
         if employee[i] != c.DAY_OFF and employee[i+1] == c.DAY_OFF and employee[i+2] != c.DAY_OFF: 
             timesViolated += 1
     return timesViolated
+
 
 def dayOffWorkDayoff(employee):
     timesViolated = 0
