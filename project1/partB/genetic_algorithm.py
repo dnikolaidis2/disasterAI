@@ -10,36 +10,52 @@ import crossover_function as cross
 
 
 def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
+    count = 0
+    print(f"Starting generation {count}! Initial population is {pop}")
+    print(f"Function parameters are:\n\titer_max = {iter_max}"
+          f"\n\tpsel = {psel}"
+          f"\n\tpcross = {pcross}"
+          f"\n\tpmut = {pmut}")
     # Generate initial population
     population = generateNotSoRandomPopulation(pop)
     # check hard constraints
-    # TODO: do something with this check.
-    print(checkHardConstraints(population))
+    hard_constraint_check = checkHardConstraints(population)
+    population = population[np.argwhere(hard_constraint_check == True).flatten()]
+    print(f"Count of initial population going to the next generation: {np.count_nonzero(hard_constraint_check)}")
 
     # Fitness calculation for every chromosome.
     penalties = penaltyFunction(population)
     fitness = fitnessFunction(population, penalties)
     meanPenaltiesList = [penalties.mean()]
-    print(meanPenaltiesList)
+    print(f"Average penalty = {meanPenaltiesList[-1]},"
+          f" Min penalty = {penalties.min()}, Max penalty = {penalties.max()}")
+    print(f"Min fitness = {fitness.min()}, Max fitness = {fitness.max()}")
 
-    for i in range(iter_max):
+    while True:
         # Generate next generation
+        count += 1
+        print(f"---------- Moving to generation {count} ----------")
+        print("Selecting...")
         population = selectWorthyChromosomes(population, fitness)
+        print("Crossing over...")
         population = cross.crossover(population, 'Uniform', pcross)
+        print("Mutating ...")
+        population = mutate(population, 'swap-mutation', pmut, .33)
 
-        population = population[np.argwhere(checkHardConstraints(population) == True).flatten()]
+        hard_constraint_check = checkHardConstraints(population)
+        population = population[np.argwhere(hard_constraint_check == True).flatten()]
+        print(f"Count of population that survived: {np.count_nonzero(hard_constraint_check)}")
         penalties = penaltyFunction(population)
         fitness = fitnessFunction(population, penalties)
         meanPenaltiesList.append(penalties.mean())
+        print(f"Average penalty = {meanPenaltiesList[-1]},"
+              f" Min penalty = {penalties.min()}, Max penalty = {penalties.max()}")
+        print(f"Min fitness = {fitness.min()}, Max fitness = {fitness.max()}")
 
-        if terminationCriteria(meanPenaltiesList):
+        if terminationCriteria(count, iter_max, meanPenaltiesList):
             # Finished is true!
             # TODO: Do stuff and exit
             break
-    else:
-        # Reached iter_max without reaching the termination criteria
-        # TODO: Do other stuff and exit
-        pass
 
 
 def generateRandomPopulation(pop):
@@ -53,7 +69,6 @@ def generateRandomPopulation(pop):
                 test = workDaysIndex[0].size
                 if workDaysIndex[0].size == 25 or workDaysIndex[0].size == 20 or workDaysIndex[0].size == 15:
                     break
-        # print(chromosome.transpose())
         population[i] = chromosome.transpose()
 
     return population
@@ -120,16 +135,34 @@ def selectWorthyChromosomes(population, fitness):
     return new_population[sorted_indexes]
 
 
-def terminationCriteria(meanPenalties):
+def mutate(population, type, pmut, pmut_depth):
+    if type == 'swap-mutation':
+        for i in range(population.shape[0]-2):
+            if uniform(0, 1) <= pmut:
+                chromosome = population[i].transpose()
+                for j in range(chromosome.shape[0]):
+                    if uniform(0, 1) <= pmut_depth:
+                        inds = np.random.choice(chromosome.shape[1], 2)
+                        tmp = chromosome[j][inds[0]]
+                        chromosome[j][inds[0]] = chromosome[j][inds[1]]
+                        chromosome[j][inds[1]] = tmp
+                population[i] = chromosome.transpose()
 
-    print(meanPenalties)
-    # Criteria 1 : Mean penalties stop decreasing - Algorithm is not improving 
+    return population
+
+
+def terminationCriteria(count, iter_max, meanPenalties):
+    # print(meanPenalties)
+    # Criteria 1 : Mean penalties stop decreasing - Algorithm is not improving
     s = len(meanPenalties)
     if s > 4:
         if stat.stdev(meanPenalties[s-4:s-1]) < c.MIN_PENALTY_DIFFERENTIATION:
             print('Algorithm is not improving')
-    
-    # Criteria 2 : Reached Max Iterations 
+
+    # Criteria 2 : Reached Max Iterations
+    if count >= iter_max:
+        print("Reached max iterations... Exiting!")
+        return True
 
     return False
 
@@ -176,7 +209,7 @@ def penaltyFunction(population):
         penalty = 0
 
         for employee in population[i]:
-            
+
             # MAX 70 hours of work (per week or per 14 days)
             if soft.hoursWorked(employee) > c.MAX_WORK_HOURS:
                 penalty += 1000
@@ -221,7 +254,7 @@ def penaltyFunction(population):
             val = soft.dayOffWorkDayoff(employee)
             if val:
                 penalty += 1*val
-            
+
             if soft.workInWeekends(employee):
                 penalty += 1
 
@@ -232,9 +265,9 @@ def penaltyFunction(population):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
-    parser.add_argument("--pop", type=int, default=2000,
+    parser.add_argument("--pop", type=int, default=5000,
                         help="When I know I will tell you.")
-    parser.add_argument("--iter-max", type=int, default=10,
+    parser.add_argument("--iter-max", type=int, default=50,
                         help="When I know I will tell you.")
     parser.add_argument("--psel", type=float, default=.1,
                         help="When I know I will tell you.")
