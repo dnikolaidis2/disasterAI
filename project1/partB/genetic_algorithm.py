@@ -172,8 +172,13 @@ def penaltyFunction(population):
         penalty = 0
 
         for employee in population[i]:
+            
             # MAX 70 hours of work (per week or per 14 days)
             if soft.hoursWorked(employee) > c.MAX_WORK_HOURS:
+                penalty += 1000
+
+            # MAX 7 continuous days of work
+            if soft.straightDaysWorked(employee):
                 penalty += 1000
 
             # MAX 4 NIGHT SHIFTS
@@ -196,12 +201,6 @@ def penaltyFunction(population):
             # Two days Off after 4 Night Shifts
             if not soft.twoDaysOffAfterNightShift(employee):
                 penalty += 100
-
-            employee = np.where(employee > 0, 1, 0)
-
-            # MAX 7 continuous days of work
-            if soft.straightDaysWorked(employee):
-                penalty += 1000
 
             # Two days Off after 7 days of work
             if not soft.twoDaysOffAfterSevenDays(employee):
