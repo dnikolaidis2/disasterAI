@@ -6,6 +6,7 @@ import statistics as stat
 from argparse import ArgumentParser
 from util import minMaxNormalize, uniqueCounts
 from random import uniform
+from plot import plotData
 import crossover_function as cross
 
 
@@ -27,6 +28,7 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
     penalties = penaltyFunction(population)
     fitness = fitnessFunction(population, penalties)
     meanPenaltiesList = [penalties.mean()]
+    elitPenaltiesList = [penalties[np.size(penalties)-1]]
     print(f"Average penalty = {meanPenaltiesList[-1]},"
           f" Min penalty = {penalties.min()}, Max penalty = {penalties.max()}")
     print(f"Min fitness = {fitness.min()}, Max fitness = {fitness.max()}")
@@ -48,13 +50,14 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
         penalties = penaltyFunction(population)
         fitness = fitnessFunction(population, penalties)
         meanPenaltiesList.append(penalties.mean())
+        elitPenaltiesList.append(penalties[np.size(penalties)-1])
         print(f"Average penalty = {meanPenaltiesList[-1]},"
               f" Min penalty = {penalties.min()}, Max penalty = {penalties.max()}")
         print(f"Min fitness = {fitness.min()}, Max fitness = {fitness.max()}")
 
-        if terminationCriteria(count, iter_max, meanPenaltiesList):
+        if terminationCriteria(count, iter_max, meanPenaltiesList, np.count_nonzero(hard_constraint_check)):
             # Finished is true!
-            # TODO: Do stuff and exit
+            plotData(count, meanPenaltiesList, elitPenaltiesList)
             break
 
 
@@ -157,17 +160,23 @@ def mutate(population, type, pmut, pmut_depth):
     return population
 
 
-def terminationCriteria(count, iter_max, meanPenalties):
+def terminationCriteria(count, iter_max, meanPenalties, popCount):
     # print(meanPenalties)
     # Criteria 1 : Mean penalties stop decreasing - Algorithm is not improving
     s = len(meanPenalties)
     if s > 4:
         if stat.stdev(meanPenalties[s-4:s-1]) < c.MIN_PENALTY_DIFFERENTIATION:
-            print('Algorithm is not improving')
+            print('Algorithm is not improving... Exiting!')
+
 
     # Criteria 2 : Reached Max Iterations
     if count >= iter_max:
         print("Reached max iterations... Exiting!")
+        return True
+    
+    # Criteria 3 : Stop when population gets low 
+    if popCount < c.MINIMUM_POPULATION:
+        print("Population is too low... Exiting!")
         return True
 
     return False
@@ -271,7 +280,7 @@ def penaltyFunction(population):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
-    parser.add_argument("--pop", type=int, default=5000,
+    parser.add_argument("--pop", type=int, default=1000,
                         help="When I know I will tell you.")
     parser.add_argument("--iter-max", type=int, default=50,
                         help="When I know I will tell you.")
