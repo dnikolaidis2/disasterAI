@@ -19,7 +19,7 @@ public class DFS {
 
             State state = stack.pop();
             ArrayList<State> children = state.successorStates(false);
-            
+            statesExpandedCount++;
             if (state.goalReached())
             {
                 System.out.println("Expanded states count: " + statesExpandedCount);
@@ -30,7 +30,7 @@ public class DFS {
                 State child = children.get(children.size()-1);
                 if (!child.isVisited(visitedStates)){
                     stack.add(child);
-                    statesExpandedCount++;
+                    
                 }
                 children.remove(child); 
             }

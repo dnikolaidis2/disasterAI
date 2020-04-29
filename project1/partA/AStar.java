@@ -21,11 +21,10 @@ public class AStar {
             
             State cheapState = findMin(openList);
             openList.remove(cheapState);  
-
              
             
             ArrayList<State> children = cheapState.successorStates(false);
-
+            statesExpandedCount++;
             while (!children.isEmpty()){
                 State child = children.get(children.size()-1);
                 
@@ -52,10 +51,9 @@ public class AStar {
                         continue; 
                     }
                 }
-                    
                 openList.add(child);
-                statesExpandedCount++;
                 children.remove(child);
+                
 
             }
             closedList.add(cheapState);

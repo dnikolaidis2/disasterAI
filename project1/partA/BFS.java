@@ -10,7 +10,7 @@ public class BFS {
         State initialState = new State(grid, grid.getStart());
         int visitedStates[][] = new int[grid.getNumOfRows()][grid.getNumOfColumns()];
 
-        Queue<State> queue = new LinkedList<>(); //Is it though?
+        Queue<State> queue = new LinkedList<>();
         queue.add(initialState);
         int statesExpandedCount = 0;
 
@@ -18,7 +18,7 @@ public class BFS {
 
             State state = queue.remove(); 
             ArrayList<State> children = state.successorStates(false);
-            
+            statesExpandedCount++;
             if (state.goalReached())
             {
                 System.out.println("Expanded states count: " + statesExpandedCount);
@@ -29,7 +29,6 @@ public class BFS {
                     State child = children.get(children.size()-1);
                     if (!child.isVisited(visitedStates)){
                         queue.add(child);
-                        statesExpandedCount++;
                     }
                     children.remove(child); 
                 }
