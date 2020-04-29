@@ -48,6 +48,12 @@ public class State implements Cloneable {
             return true; 
         return false; 
     }
+
+    public boolean isStart(){
+        if (Arrays.equals(this.position, this.grid.getStart()))
+            return true; 
+        return false; 
+    }
     
     public ArrayList<State> successorStates(boolean shuffle){
 
@@ -143,8 +149,8 @@ public class State implements Cloneable {
     public double findH(){
 
         // We calculate our heuristic using the Euclidian Distance from our point to the end point
-        double heur = Math.sqrt((Math.abs(this.position[0] - this.grid.getTerminal()[0]))^2 + 
-                        (Math.abs(this.position[1] - this.grid.getTerminal()[1])^2));
+        double heur = Math.sqrt(Math.pow(Math.abs(this.position[0] - this.grid.getTerminal()[0]), 2) + 
+                        Math.pow(Math.abs(this.position[1] - this.grid.getTerminal()[1]), 2));
         
         return heur; 
     }
