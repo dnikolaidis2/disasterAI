@@ -286,15 +286,13 @@ def penaltyFunction(population):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
-    parser.add_argument("--pop", type=int, default=1000,
+    parser.add_argument("--pop", type=int, default=2000,
                         help="Initial population count.")
-    parser.add_argument("--iter-max", type=int, default=50,
+    parser.add_argument("--iter-max", type=int, default=20,
                         help="Maximum iterations to run for.")
-    # parser.add_argument("--psel", type=float, default=.1,
-    #                     help="When I know I will tell you.")
-    parser.add_argument("--pcross", type=float, default=0.7,
+    parser.add_argument("--pcross", type=float, default=0.4,
                         help="The probability with which to decide whether to crossover chromosomes or not.")
-    parser.add_argument("--cross-type", default="uniform", choices=c.CROSS_TYPE,
+    parser.add_argument("--cross-type", default="two-point", choices=c.CROSS_TYPE,
                         help="The crossover algorithm to use.")
     parser.add_argument("--pmut", type=float, default=.1,
                         help="The probability with which to decide whether to mutate chromosomes or not.")

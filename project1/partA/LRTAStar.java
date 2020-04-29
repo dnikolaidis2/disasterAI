@@ -15,7 +15,7 @@ public class LRTAStar {
         while (true) {
             if (sPrime.goalReached()) {
                 System.out.println("Expanded states count: " + statesExpandedCount);
-                return sPrime.getParentNode();
+                return sPrime;
             }
             else {
                 if (!H.containsKey(sPrime.getCell())) {
