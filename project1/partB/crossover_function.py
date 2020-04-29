@@ -21,7 +21,7 @@ def crossover(population, method, pcross):
 def crossover_methods(parent, method):
     # Each gene is selected from either parent with equal probability
     children = np.empty([2, c.EMPLOYEE_COUNT, c.DAY_COUNT])
-    if method == 'Uniform':
+    if method == 'uniform':
         for i in range(len(parent[0])):
             for j in range(len(parent[0][i])):
                 indx1 = random.randint(0, 1)
@@ -32,7 +32,7 @@ def crossover_methods(parent, method):
                 children[0][i][j] = parent[indx1][i][j] 
                 children[1][i][j] = parent[indx2][i][j]
     
-    if method == 'TwoPoint':
+    if method == 'two-point':
         point1 = np.random.randint(1, len(parent[0]))
         point2 = np.random.randint(point1, len(parent[0]))
         children[0] = np.vstack((parent[0][0:point1], parent[1][point1:point2], parent[0][point2:]))

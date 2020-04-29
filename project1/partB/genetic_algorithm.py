@@ -10,13 +10,15 @@ from plot import plotData
 import crossover_function as cross
 
 
-def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
+def geneticAlgorithm(pop, iter_max, pcross, corss_type, pmut, mut_type, save_plot=False, file_name="figure"):
     count = 0
     print(f"Starting generation {count}! Initial population is {pop}")
     print(f"Function parameters are:\n\titer_max = {iter_max}"
-          f"\n\tpsel = {psel}"
+          # f"\n\tpsel = {psel}"
           f"\n\tpcross = {pcross}"
-          f"\n\tpmut = {pmut}")
+          f"\n\tcorss_type = {corss_type}"
+          f"\n\tpmut = {pmut}"
+          f"\n\tmut_type = {mut_type}")
     # Generate initial population
     population = generateNotSoRandomPopulation(pop)
     # check hard constraints
@@ -28,10 +30,10 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
     penalties = penaltyFunction(population)
     fitness = fitnessFunction(population, penalties)
     meanPenaltiesList = [penalties.mean()]
-    elitPenaltiesList = [penalties[np.size(penalties)-1]]
-    print(f"Average penalty = {meanPenaltiesList[-1]},"
-          f" Min penalty = {penalties.min()}, Max penalty = {penalties.max()}")
-    print(f"Min fitness = {fitness.min()}, Max fitness = {fitness.max()}")
+    elitePenaltiesList = [penalties.min()]
+    print(f"Average penalty = {meanPenaltiesList[-1]:.3f},"
+          f" Min penalty = {penalties.min():.3f}, Max penalty = {penalties.max():.3f}")
+    print(f"Min fitness = {fitness.min():.3f}, Max fitness = {fitness.max():.3f}")
 
     while True:
         # Generate next generation
@@ -40,9 +42,9 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
         print("Selecting...")
         population = selectWorthyChromosomes(population, fitness)
         print("Crossing over...")
-        population = cross.crossover(population, 'Uniform', pcross)
+        population = cross.crossover(population, corss_type, pcross)
         print("Mutating ...")
-        population = mutate(population, 'bit-flit-mutation', pmut, .33)
+        population = mutate(population, mut_type, pmut, .33)
 
         hard_constraint_check = checkHardConstraints(population)
         population = population[np.argwhere(hard_constraint_check == True).flatten()]
@@ -50,15 +52,20 @@ def geneticAlgorithm(pop, iter_max, psel, pcross, pmut):
         penalties = penaltyFunction(population)
         fitness = fitnessFunction(population, penalties)
         meanPenaltiesList.append(penalties.mean())
-        elitPenaltiesList.append(penalties[np.size(penalties)-1])
-        print(f"Average penalty = {meanPenaltiesList[-1]},"
-              f" Min penalty = {penalties.min()}, Max penalty = {penalties.max()}")
-        print(f"Min fitness = {fitness.min()}, Max fitness = {fitness.max()}")
+        elitePenaltiesList.append(penalties.min())
+        print(f"Average penalty = {meanPenaltiesList[-1]:.3f},"
+              f" Min penalty = {penalties.min():.3f}, Max penalty = {penalties.max():.3f}")
+        print(f"Min fitness = {fitness.min():.3f}, Max fitness = {fitness.max():.3f}")
 
         if terminationCriteria(count, iter_max, meanPenaltiesList, np.count_nonzero(hard_constraint_check)):
             # Finished is true!
-            plotData(count, meanPenaltiesList, elitPenaltiesList)
+            plotData(count, meanPenaltiesList, elitePenaltiesList,
+                     f"Results with pop={pop} for pcorss={pcross},"
+                     f" corss_type={corss_type}, pmut={pmut}, mut_type={mut_type}",
+                     save_plot, file_name)
             break
+
+    return meanPenaltiesList, elitePenaltiesList
 
 
 def generateRandomPopulation(pop):
@@ -147,12 +154,12 @@ def mutate(population, type, pmut, pmut_depth):
             chromosome = population[i].transpose()
             for j in range(chromosome.shape[0]):
                 if uniform(0, 1) <= pmut_depth:
-                    if type == 'swap-mutation':
+                    if type == 'swap':
                         inds = np.random.choice(chromosome.shape[1], 2)
                         tmp = chromosome[j][inds[0]]
                         chromosome[j][inds[0]] = chromosome[j][inds[1]]
                         chromosome[j][inds[1]] = tmp
-                    elif type == "bit-flit-mutation":
+                    elif type == "bit-flip":
                         ind = np.random.choice(chromosome.shape[1], 1)
                         chromosome[j][ind] = np.random.choice(c.ALLOWED_VALUES)
 
@@ -167,7 +174,6 @@ def terminationCriteria(count, iter_max, meanPenalties, popCount):
     if s > 4:
         if stat.stdev(meanPenalties[s-4:s-1]) < c.MIN_PENALTY_DIFFERENTIATION:
             print('Algorithm is not improving... Exiting!')
-
 
     # Criteria 2 : Reached Max Iterations
     if count >= iter_max:
@@ -281,15 +287,24 @@ def penaltyFunction(population):
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run genetic algorithm for the WHPP problem.")
     parser.add_argument("--pop", type=int, default=1000,
-                        help="When I know I will tell you.")
+                        help="Initial population count.")
     parser.add_argument("--iter-max", type=int, default=50,
-                        help="When I know I will tell you.")
-    parser.add_argument("--psel", type=float, default=.1,
-                        help="When I know I will tell you.")
+                        help="Maximum iterations to run for.")
+    # parser.add_argument("--psel", type=float, default=.1,
+    #                     help="When I know I will tell you.")
     parser.add_argument("--pcross", type=float, default=0.7,
-                        help="When I know I will tell you.")
+                        help="The probability with which to decide whether to crossover chromosomes or not.")
+    parser.add_argument("--cross-type", default="uniform", choices=c.CROSS_TYPE,
+                        help="The crossover algorithm to use.")
     parser.add_argument("--pmut", type=float, default=.1,
-                        help="When I know I will tell you.")
+                        help="The probability with which to decide whether to mutate chromosomes or not.")
+    parser.add_argument("--mut-type", default="swap", choices=c.MUT_TYPE,
+                        help="The mutation algorithm to use.")
+    parser.add_argument("--save-plot", action='store_true',
+                        help="Save plot instead of displaying it.")
+    parser.add_argument("--plot-file-name", default="figure",
+                        help="File name for saved plot.")
     args = parser.parse_args()
 
-    geneticAlgorithm(args.pop, args.iter_max, args.psel, args.pcross, args.pmut)
+    geneticAlgorithm(args.pop, args.iter_max, args.pcross, args.cross_type, args.pmut, args.mut_type,
+                     args.save_plot, args.plot_file_name)

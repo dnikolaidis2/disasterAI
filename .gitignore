@@ -4,3 +4,6 @@
 **/__pycache__
 /project1/partB/test.py
 /project1/partB/calculate_penalty_max.py
+*.png
+*.txt
+*.pdf

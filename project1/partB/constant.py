@@ -24,6 +24,9 @@ MIN_PENALTY_DIFFERENTIATION = 100
 
 MINIMUM_POPULATION = 35
 
+CROSS_TYPE = ['uniform', 'two-point']
+MUT_TYPE = ['swap', 'bit-flip']
+
 PREFERRED_SCHEDULE = array([3, 3, 3, 3, 0, 0])
 EXPECTED_ELEMENTS = array([1, 2, 3])
 ALLOWED_VALUES = array([0, 1, 2, 3])
