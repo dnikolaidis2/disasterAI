@@ -13,6 +13,7 @@ public class DFS {
         Stack<State> stack = new Stack<>();
 
         stack.push(initialState);
+        int statesExpandedCount = 0;
 
         while (stack.empty() == false){
 
@@ -20,13 +21,16 @@ public class DFS {
             ArrayList<State> children = state.successorStates(false);
             
             if (state.goalReached())
+            {
+                System.out.println("Expanded states count: " + statesExpandedCount);
                 return state;
-
+            }
 
             while (!children.isEmpty()){
                 State child = children.get(children.size()-1);
                 if (!child.isVisited(visitedStates)){
                     stack.add(child);
+                    statesExpandedCount++;
                 }
                 children.remove(child); 
             }

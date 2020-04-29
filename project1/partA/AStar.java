@@ -15,6 +15,8 @@ public class AStar {
         initialState.generateF();
         openList.add(initialState);
 
+        int statesExpandedCount = 0;
+
         while (!openList.isEmpty()){
             
             State cheapState = findMin(openList);
@@ -22,14 +24,16 @@ public class AStar {
 
              
             
-            ArrayList<State> children = cheapState.successorStates(false); 
+            ArrayList<State> children = cheapState.successorStates(false);
 
             while (!children.isEmpty()){
                 State child = children.get(children.size()-1);
                 
                 if (child.goalReached())
+                {
+                    System.out.println("Expanded states count: " + statesExpandedCount);
                     return child;
-
+                }
                 
                 // If i.e. a child lands on [3,4] and it's cost is more expensive than an
                 // already expanded node on [3,4] then we don't expand the child. 
@@ -50,6 +54,7 @@ public class AStar {
                 }
                     
                 openList.add(child);
+                statesExpandedCount++;
                 children.remove(child);
 
             }

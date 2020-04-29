@@ -10,8 +10,11 @@ public class LRTAStar {
         HashMap<Cell, Double> H = new HashMap<Cell, Double>();
         State sPrime = new State(grid, grid.getStart());
 
+        int statesExpandedCount = 0;
+
         while (true) {
             if (sPrime.goalReached()) {
+                System.out.println("Expanded states count: " + statesExpandedCount);
                 return sPrime.getParentNode();
             }
             else {
@@ -45,6 +48,7 @@ public class LRTAStar {
 
             s = sPrime;
             sPrime = a;
+            statesExpandedCount++;
         }
     }
 

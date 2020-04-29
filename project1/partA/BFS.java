@@ -12,6 +12,7 @@ public class BFS {
 
         Queue<State> queue = new LinkedList<>(); //Is it though?
         queue.add(initialState);
+        int statesExpandedCount = 0;
 
         while (!queue.isEmpty()){
 
@@ -19,13 +20,16 @@ public class BFS {
             ArrayList<State> children = state.successorStates(false);
             
             if (state.goalReached())
+            {
+                System.out.println("Expanded states count: " + statesExpandedCount);
                 return state;
-
+            }
 
                 while (!children.isEmpty()){
                     State child = children.get(children.size()-1);
                     if (!child.isVisited(visitedStates)){
                         queue.add(child);
+                        statesExpandedCount++;
                     }
                     children.remove(child); 
                 }

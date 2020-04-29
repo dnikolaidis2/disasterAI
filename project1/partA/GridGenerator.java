@@ -58,27 +58,31 @@ class GridGenerator{
 		VisualizeGrid(frame,0,0,N,M,mygrid.getWalls(),mygrid.getGrass(),mygrid.getStartidx(),mygrid.getTerminalidx());
 		
 		//Breadth First Search 
+		System.out.println("\n--------Breadth First Search---------\n");
 		BFS bfs = new BFS();
 		State goalStateBFS = bfs.breadthFirstSearch(mygrid);
-		System.out.println("\n\n--------Breadth First Search---------\n\n");
+		System.out.println("Path cost: " + goalStateBFS.getG());
 		VisualizeGrid("BFS",1,0,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateBFS),mygrid.getStartidx(),mygrid.getTerminalidx());
 		
 		//Depth First Search
+		System.out.println("\n--------Depth Fisrt Search---------\n");
 		DFS dfs = new DFS();
 		State goalStateDFS = dfs.depthFirstSearch(mygrid);
-		System.out.println("\n\n--------Depth Fisrt Search---------\n\n");
+		System.out.println("Path cost: " + goalStateDFS.getG());
 		VisualizeGrid("DFS",2,0,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateDFS),mygrid.getStartidx(),mygrid.getTerminalidx());
 		
 		//AStar Search
+		System.out.println("\n--------ASTAR---------\n");
 		AStar astar = new AStar();
 		State goalStateAStar = astar.aStarSearch(mygrid);
-		System.out.println("\n\n--------ASTAR---------\n\n");
+		System.out.println("Path cost: " + goalStateAStar.getG());
 		VisualizeGrid("AStar",3,0,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateAStar),mygrid.getStartidx(),mygrid.getTerminalidx());
 
 		//LRTAStar Search
+		System.out.println("\n--------LRTAStar---------\n");
 		LRTAStar lartastar = new LRTAStar();
 		State goalStateLRTAStar = lartastar.LRTAStarSearch(mygrid);
-		System.out.println("\n\n--------LRTAStar---------\n\n");
+		System.out.println("Path cost: " + goalStateLRTAStar.getG());
 		VisualizeGrid("LRTAStar",0,1,N,M,mygrid.getWalls(),mygrid.getGrass(),generateSteps(goalStateLRTAStar),mygrid.getStartidx(),mygrid.getTerminalidx());
 	}
 
@@ -96,7 +100,7 @@ class GridGenerator{
 		int count=moves-1;  
 		while (tempState.getParentNode() != null){
 			steps[count] = tempState.getIdx();
-			System.out.println("Step cost: "+tempState.getF());
+			// System.out.println("Step cost: "+tempState.getF());
 			count--; 
 			tempState = tempState.getParentNode();
 		}
