@@ -1,9 +1,9 @@
-# ParA
+# PartA
 
-This is partA of PLH417 programming excercise 1. It implements BFS, DFS A* and LRTA* search algorithms for a gridworld world
+This is partA for the programming excercise 1 of the course PLH417. It implements BFS, DFS A* and LRTA* search algorithms for a gridworld world
 
 
-### Prequisites
+### Perquisites
 
 * Java version 13.0+.
 _Note_ while this project was tested and run with java 13.0 it **_should_** work with java version 1.8 and above.
