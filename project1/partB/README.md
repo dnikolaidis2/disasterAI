@@ -13,7 +13,7 @@ This is partB for the programming excercise 1 of the course PLH417. It implement
 
 Generate virtual environment:
 ```
-python -v venv venv
+python -m venv venv
 ```
 
 Activating environment:
@@ -25,12 +25,12 @@ call venv\Scripts\activate.bat
 
 Generate virtual environment:
 ```
-python3 -v venv venv
+python3 -m venv venv
 ```
 
 Activating environment:
 ```
-source venv\Scripts\activate
+source venv/Scripts/activate
 ```
 
 ### Installing packages and running
