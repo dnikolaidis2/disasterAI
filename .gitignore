@@ -9,3 +9,4 @@
 *.pdf
 *.class
 newRandomLevel.world
+!requirements.txt
