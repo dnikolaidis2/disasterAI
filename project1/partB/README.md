@@ -1,6 +1,6 @@
-# PartA
+# PartB
 
-This is partA for the programming excercise 1 of the course PLH417. It implements a genetic algorithm to solve the WHPP problem.
+This is partB for the programming excercise 1 of the course PLH417. It implements a genetic algorithm to solve the WHPP problem.
 
 
 ### Prequisites
@@ -45,7 +45,7 @@ Run base script:
 ```
 python genetic_algorithm.py
 ```
-Use `--help` to see options
+Use `--help` to see options.
 
 Optionaly regenerate report results:
 ```
