@@ -1,5 +1,5 @@
 from genetic_algorithm import geneticAlgorithm
-from constant import CROSS_TYPE, MUT_TYPE
+from constants import CROSS_TYPE, MUT_TYPE
 from statistics import mean
 
 if __name__ == "__main__":

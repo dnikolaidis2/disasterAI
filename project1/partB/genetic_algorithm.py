@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 import numpy as np 
-import constant as c
-import soft_constraints as soft
+import constants as c
 import statistics as stat
 from argparse import ArgumentParser
-from util import minMaxNormalize, uniqueCounts
-from random import uniform
+from util import minMaxNormalize
+from random import uniform, randint
 from plot import plotData
-import crossover_function as cross
+from constraints import penaltyFunction, fitnessFunction, checkHardConstraints
 
 
 def geneticAlgorithm(pop, iter_max, pcross, corss_type, pmut, mut_type, save_plot=False, file_name="figure"):
@@ -42,7 +41,7 @@ def geneticAlgorithm(pop, iter_max, pcross, corss_type, pmut, mut_type, save_plo
         print("Selecting...")
         population = selectWorthyChromosomes(population, fitness)
         print("Crossing over...")
-        population = cross.crossover(population, corss_type, pcross)
+        population = crossover(population, corss_type, pcross)
         print("Mutating ...")
         population = mutate(population, mut_type, pmut, .33)
 
@@ -148,6 +147,43 @@ def selectWorthyChromosomes(population, fitness):
     return new_population[sorted_indexes]
 
 
+def crossover(population, method, pcross):
+    # Considering the last chromosome as elite, do we crossover it?
+    crossPopulation = np.empty(population.shape)
+    for i in range(0, (len(population) - 2), 2):
+        crossPass = np.random.choice((1, 0), p=[pcross, 1 - pcross])
+        if crossPass:
+            children = crossover_methods(np.array([population[i], population[i + 1]]), method=method)
+            crossPopulation[i] = children[0]
+            crossPopulation[i + 1] = children[1]
+        else:
+            crossPopulation[i] = population[i]
+            crossPopulation[i + 1] = population[i + 1]
+    return crossPopulation
+
+
+def crossover_methods(parent, method):
+    # Each gene is selected from either parent with equal probability
+    children = np.empty([2, c.EMPLOYEE_COUNT, c.DAY_COUNT])
+    if method == 'uniform':
+        for i in range(len(parent[0])):
+            for j in range(len(parent[0][i])):
+                indx1 = randint(0, 1)
+                indx2 = 1
+                if indx1:
+                    indx2 = 0
+
+                children[0][i][j] = parent[indx1][i][j]
+                children[1][i][j] = parent[indx2][i][j]
+
+    if method == 'two-point':
+        point1 = np.random.randint(1, len(parent[0]))
+        point2 = np.random.randint(point1, len(parent[0]))
+        children[0] = np.vstack((parent[0][0:point1], parent[1][point1:point2], parent[0][point2:]))
+        children[1] = np.vstack((parent[1][0:point1], parent[0][point1:point2], parent[1][point2:]))
+    return children
+
+
 def mutate(population, type, pmut, pmut_depth):
     for i in range(population.shape[0]-2):
         if uniform(0, 1) <= pmut:
@@ -186,102 +222,6 @@ def terminationCriteria(count, iter_max, meanPenalties, popCount):
         return True
 
     return False
-
-
-def workforceSatisfied(chromosome, expected_elems):
-    # A bit complicated but for every day in a chromosome calculate the counts off all unique elements
-    # with unique(). These counts are the numbers of employees working each shift on a given day.
-    # Select only shifts that are greater then 0. This table has the coverage of every shift per day.
-    workforce_coverage = np.apply_along_axis(uniqueCounts, 0, chromosome, 0, expected_elems)
-
-    # For every element in workforce_coverage check that its greater or equal
-    # to the minimum requirements given by REQUIRED_COVERAGE.
-    return np.all(workforce_coverage == c.REQUIRED_COVERAGE)
-
-
-def fitnessFunction(population, penalty=None):
-    if penalty is None:
-        penalty = penaltyFunction(population)
-
-    penalty_norm = minMaxNormalize(penalty, c.MIN_PENALTY, c.MAX_PENALTY)
-
-    np.testing.assert_array_less(-penalty_norm, 0, f"New min found! {penalty[penalty.argmin()]}")
-    np.testing.assert_array_less(penalty_norm, 1.0000000000000001, f"New max found! {penalty[penalty.argmax()]}")
-
-    return 1 - penalty_norm
-
-
-def checkHardConstraints(population):
-    pop = population.shape[0]
-    ret = np.zeros(pop, dtype=bool)
-
-    for i in range(pop):
-        ret[i] = workforceSatisfied(population[i], c.EXPECTED_ELEMENTS)
-
-    return ret
-
-
-def penaltyFunction(population):
-    pop = population.shape[0]
-    ret = np.zeros(pop)
-
-    for i in range(pop):
-        # Give a value to a population based on soft constraints
-        penalty = 0
-
-        for employee in population[i]:
-
-            # MAX 70 hours of work (per week or per 14 days)
-            if soft.hoursWorked(employee) > c.MAX_WORK_HOURS:
-                penalty += 1000
-
-            # MAX 7 continuous days of work
-            if soft.straightDaysWorked(employee):
-                penalty += 1000
-
-            # MAX 4 NIGHT SHIFTS
-            val = soft.maxNightShifts(employee)
-            if val:
-                # Multiply the penalty if constraint is broken more than once in schedule
-                penalty += 1000*val
-
-            # Morning Shift after Night Shift
-            val = soft.morningAfterNight(employee)
-            if val:
-                penalty += 1000*val
-
-            # Morning Shift after Evening Shift
-            val = soft.morningAfterEvening(employee)
-            if val:
-                penalty += 800*val
-
-            # Evening Shift after Night
-            val = soft.eveningAfterNight(employee)
-            if val:
-                penalty += 800*val
-
-            # Two days Off after 4 Night Shifts
-            if not soft.twoDaysOffAfterNightShift(employee):
-                penalty += 100
-
-            # Two days Off after 7 days of work
-            if not soft.twoDaysOffAfterSevenDays(employee):
-                penalty += 100
-
-            val = soft.workDayoffWork(employee)
-            if val:
-                penalty += 1*val
-
-            val = soft.dayOffWorkDayoff(employee)
-            if val:
-                penalty += 1*val
-
-            if soft.workInWeekends(employee):
-                penalty += 1
-
-        ret[i] = penalty
-
-    return ret
 
 
 if __name__ == "__main__":
