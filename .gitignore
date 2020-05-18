@@ -11,3 +11,9 @@
 newRandomLevel.world
 !requirements.txt
 !Αναφορά.pdf
+
+*.o
+**/client
+**/server
+**/guiServer
+*.so

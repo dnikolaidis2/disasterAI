@@ -1,4 +1,4 @@
-from pyAnts.board import PositionStruct, printPosition, doMove, canMove, isLegal, canJump
+from pyAnts.board import PositionStruct, doMove, canMove, isLegal, canJump
 from pyAnts.move import MoveStruct
 from argparse import ArgumentParser
 from pyAnts.comm import connectToTarget, recvMsg, NM_COLOR_B,\
@@ -40,7 +40,7 @@ if __name__ == "__main__":
             sendName(agentName, mySocket)
         elif msg == NM_NEW_POSITION:              # server is trying to send us a new position
             getPosition(gamePosition, mySocket)
-            printPosition(gamePosition)
+            print(gamePosition)
         elif msg == NM_COLOR_W:                   # server informs us that we have WHITE color
             myColor = WHITE
             print(f"My color is {myColor}",)
@@ -53,7 +53,7 @@ if __name__ == "__main__":
             getMove(moveReceived, mySocket)
             moveReceived.color = getOtherSide(myColor)
             doMove(gamePosition, moveReceived)		# play opponent's move on our position
-            printPosition(gamePosition)
+            print(gamePosition)
 
         elif msg == NM_REQUEST_MOVE:		# server requests our move
             myMove.color = myColor
@@ -132,7 +132,7 @@ if __name__ == "__main__":
             sendMove(myMove, mySocket)			# send our move
             # printf("i chose to go from (%d,%d), to (%d,%d)\n",myMove.tile[0][0],myMove.tile[1][0],myMove.tile[0][1],myMove.tile[1][1]);
             doMove(gamePosition, myMove)		# play our move on our position
-            printPosition(gamePosition)
+            print(gamePosition)
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
             close(mySocket)

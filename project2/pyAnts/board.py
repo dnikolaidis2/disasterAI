@@ -1,5 +1,5 @@
 from ctypes import CDLL, c_byte, Structure, pointer
-from .globals import BOARD_ROWS, BOARD_COLUMNS
+from .globals import BOARD_ROWS, BOARD_COLUMNS, WHITE, BLACK, EMPTY, ILLEGAL, RTILE
 from os import environ
 
 if "LD_LIBRARY_PATH" not in environ:
@@ -14,6 +14,21 @@ class PositionStruct(Structure):
 				("score", (c_byte * 2)),
 				("turn", c_byte)]
 
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+	def __repr__(self):
+		return positionToString(self)
+
+	def __hash__(self):
+		return hash(self.__repr__())
+
+	def __eq__(self, other):
+		if isinstance(other, PositionStruct):
+			return self.__hash__() == other.__hash__()
+		else:
+			return False
+
 
 def initPosition(pos):
 	"""
@@ -22,6 +37,72 @@ def initPosition(pos):
 	:return:
 	"""
 	board_lib.initPosition(pointer(pos))
+
+
+def boardToString(board):
+	# Print the upper section
+	out = "    "
+	for i in range(BOARD_COLUMNS):
+		out += f"{i} "
+	out += "\n  +"
+	for i in range(2 * BOARD_COLUMNS + 1):
+		out += "-"
+	out += "+\n"
+
+	# Print board
+	for i in range(BOARD_ROWS):
+		if i >= 10:
+			out += f"{i}| "
+		else:
+			out += f"0{i}| "
+		for j in range(BOARD_COLUMNS):
+			if board[i][j] == WHITE:
+				out += "W "
+			elif board[i][j] == BLACK:
+				out += "B "
+			elif board[i][j] == EMPTY:
+				out += ". "
+			elif board[i][j] == ILLEGAL:
+				out += "# "
+			elif board[i][j] == RTILE:
+				out += "* "
+			else:
+				print("ERROR: Unknown character in board (boardToString)")
+				exit(1)
+		if i >= 10:
+			out += f"|{i} \n"
+		else:
+			out += f"|0{i} \n"
+
+	# Print the lower section
+	out += "  +"
+	for i in range(2 * BOARD_COLUMNS + 1):
+		out += "-"
+	out += "+\n"
+	out += "    "
+	for i in range(BOARD_COLUMNS):
+		out += f"{i} "
+	out += "\n"
+	return out
+
+
+def positionToString(pos):
+	# board
+	out = boardToString(pos.board)
+
+	# turn
+	if pos.turn == WHITE:
+		out += "Turn: WHITE"
+	elif pos.turn == BLACK:
+		out += "Turn: BLACK"
+	else:
+		out += "Turn: -"
+
+	out += "\n"
+
+	# score
+	out += f"Score is  W: {pos.score[WHITE]}  B: {pos.score[BLACK]}\n"
+	return out
 
 
 def printBoard(board):
