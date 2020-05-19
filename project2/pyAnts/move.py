@@ -1,11 +1,29 @@
 from ctypes import Structure, c_byte
-from .globals import MAXIMUM_MOVE_SIZE
+from .globals import MAXIMUM_MOVE_SIZE, WHITE, BLACK
 
 
 # Struct to store Move and color of the player
 class MoveStruct(Structure):
 	_fields_ = [("tile", (c_byte*MAXIMUM_MOVE_SIZE)*2),
 				("color", c_byte)]
+
+	def __repr__(self):
+		out = ""
+		if self.color == WHITE:
+			out += "Move: WHITE"
+		elif self.color == BLACK:
+			out += "Move: BLACK"
+		else:
+			out += "Move: -"
+
+		for i in range(MAXIMUM_MOVE_SIZE):
+			if self.tile[0][i] == -1:
+				break
+			else:
+				out += '\n'
+
+			out += f"{i}| {self.tile[0][i]:2}, {self.tile[1][i]:2}"
+		return out
 
 
 """
