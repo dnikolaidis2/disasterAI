@@ -17,6 +17,8 @@ class PositionStruct(Structure):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		initPosition(self)
+
 	def __repr__(self):
 		return positionToString(self)
 
@@ -28,6 +30,25 @@ class PositionStruct(Structure):
 			return self.__hash__() == other.__hash__()
 		else:
 			return False
+
+	def can_jump(self, row, col, player):
+		return canJump(row, col, player, self)
+
+	def can_jump_to(self, row, col, player, row_dest, col_dest):
+		return canJumpTo(row, col, player, self, row_dest, col_dest)
+
+	def do_move(self, move):
+		if self.is_legal(move):
+			doMove(self, move)
+			return True
+		else:
+			return False
+
+	def is_legal(self, move):
+		return isLegal(self, move)
+
+	def can_move(self, player):
+		return canMove(self, player)
 
 
 def initPosition(pos):

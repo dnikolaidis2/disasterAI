@@ -1,4 +1,4 @@
-from pyAnts.board import PositionStruct, doMove, canMove, isLegal, canJump
+from pyAnts.board import PositionStruct
 from pyAnts.move import MoveStruct
 from argparse import ArgumentParser
 from pyAnts.comm import connectToTarget, recvMsg, NM_COLOR_B,\
@@ -52,12 +52,12 @@ if __name__ == "__main__":
         elif msg == NM_PREPARE_TO_RECEIVE_MOVE:     # server informs us that he will send opponent's move
             getMove(moveReceived, mySocket)
             moveReceived.color = getOtherSide(myColor)
-            doMove(gamePosition, moveReceived)		# play opponent's move on our position
+            gamePosition.do_move(moveReceived)		# play opponent's move on our position
             print(gamePosition)
 
         elif msg == NM_REQUEST_MOVE:		# server requests our move
             myMove.color = myColor
-            if not canMove(gamePosition, myColor):
+            if not gamePosition.can_move(myColor):
                 myMove.tile[0][0] = -1		# null move
             else:
                 # *****************************************************
@@ -71,7 +71,7 @@ if __name__ == "__main__":
                 for i in range(BOARD_ROWS):
                     for j in range(BOARD_COLUMNS):
                         if gamePosition.board[i][j] == myColor:
-                            if canJump(i, j, myColor, gamePosition):
+                            if gamePosition.can_jump(i, j, myColor):
                                 jumpPossible = True
 
                 while True:
@@ -86,32 +86,32 @@ if __name__ == "__main__":
                             myMove.tile[0][2] = -1
                             if random() <= 0.5:	            # with 50% chance try left and then right
                                 myMove.tile[1][1] = j - 1
-                                if isLegal(gamePosition, myMove):
+                                if gamePosition.is_legal(myMove):
                                     break
 
                                 myMove.tile[1][1] = j + 1
-                                if isLegal(gamePosition, myMove):
+                                if gamePosition.is_legal(myMove):
                                     break
                             else:	        # the other 50%...try right first and then left
                                 myMove.tile[1][1] = j + 1
-                                if isLegal(gamePosition, myMove):
+                                if gamePosition.is_legal(myMove):
                                     break
 
                                 myMove.tile[1][1] = j - 1
-                                if isLegal(gamePosition, myMove):
+                                if gamePosition.is_legal(myMove):
                                     break
                         else:       # jump possible
-                            if canJump(i, j, myColor, gamePosition):
+                            if gamePosition.can_jump(i, j, myColor):
                                 k = 1
-                                while canJump(i, j, myColor, gamePosition) != 0:
+                                while gamePosition.can_jump(i, j, myColor) != 0:
                                     myMove.tile[0][k] = i + 2 * playerDirection
                                     if random() <= 0.5:     # 50% chance
-                                        if canJump(i, j, myColor, gamePosition) % 2 == 1:		# left jump possible
+                                        if gamePosition.can_jump(i, j, myColor) % 2 == 1:		# left jump possible
                                             myMove.tile[1][k] = j - 2
                                         else:
                                             myMove.tile[1][k] = j + 2
                                     else:       # 50%
-                                        if canJump(i, j, myColor, gamePosition) > 1:		# right jump possible
+                                        if gamePosition.can_jump(i, j, myColor) > 1:		# right jump possible
                                             myMove.tile[1][k] = j + 2
                                         else:
                                             myMove.tile[1][k] = j - 2
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
             sendMove(myMove, mySocket)			# send our move
             # printf("i chose to go from (%d,%d), to (%d,%d)\n",myMove.tile[0][0],myMove.tile[1][0],myMove.tile[0][1],myMove.tile[1][1]);
-            doMove(gamePosition, myMove)		# play our move on our position
+            gamePosition.do_move(myMove)		# play our move on our position
             print(gamePosition)
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
