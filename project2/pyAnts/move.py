@@ -1,11 +1,44 @@
 from ctypes import Structure, c_byte
 from .globals import MAXIMUM_MOVE_SIZE, WHITE, BLACK
+from enum import Enum
+
+
+class MoveType(Enum):
+	JUMP = 0
+	QUEEN = 1
+	FOOD = 2
+	MOVE = 3
 
 
 # Struct to store Move and color of the player
 class MoveStruct(Structure):
 	_fields_ = [("tile", (c_byte*MAXIMUM_MOVE_SIZE)*2),
 				("color", c_byte)]
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		if "type" in kwargs:
+			self.type = kwargs["type"]
+		else:
+			self.type = None
+
+		if "color" in kwargs:
+			self.color = kwargs["color"]
+
+		if self.type == MoveType.JUMP and "jump_count" in kwargs:
+			self.jump_count = kwargs["jump_count"]
+		else:
+			self.jump_count = 0
+
+		if "init_pos" in kwargs:
+			self.tile[0][0] = kwargs["init_pos"][0]
+			self.tile[1][0] = kwargs["init_pos"][1]
+
+		if "dest_pos" in kwargs:
+			self.tile[0][1] = kwargs["dest_pos"][0]
+			self.tile[1][1] = kwargs["dest_pos"][1]
+			self.tile[0][2] = -1
 
 	def __repr__(self):
 		out = ""
@@ -24,6 +57,15 @@ class MoveStruct(Structure):
 
 			out += f"{i}| {self.tile[0][i]:2}, {self.tile[1][i]:2}"
 		return out
+
+	def __hash__(self):
+		return hash(self.__repr__())
+
+	def __eq__(self, other):
+		if isinstance(other, MoveStruct):
+			return self.__hash__() == other.__hash__()
+		else:
+			return False
 
 
 """

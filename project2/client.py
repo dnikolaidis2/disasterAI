@@ -2,10 +2,9 @@ from pyAnts.board import PositionStruct
 from pyAnts.move import MoveStruct
 from argparse import ArgumentParser
 from pyAnts.comm import connectToTarget, recvMsg, NM_COLOR_B,\
-    NM_COLOR_W, NM_NEW_POSITION, NM_PREPARE_TO_RECEIVE_MOVE,\
-    NM_QUIT, NM_REQUEST_MOVE, NM_REQUEST_NAME, sendName, getPosition,\
-    getMove, sendMove
-from pyAnts.globals import BLACK, WHITE, getOtherSide, BOARD_COLUMNS, BOARD_ROWS, MAXIMUM_MOVE_SIZE, DEFAULT_PORT
+    NM_COLOR_W, NM_NEW_POSITION, NM_QUIT, NM_REQUEST_MOVE,\
+    NM_REQUEST_NAME, sendName, getPosition, sendMove
+from pyAnts.globals import BLACK, WHITE, BOARD_COLUMNS, BOARD_ROWS, MAXIMUM_MOVE_SIZE, DEFAULT_PORT
 from os import close
 from random import random, randint
 

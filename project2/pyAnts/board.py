@@ -1,6 +1,9 @@
 from ctypes import CDLL, c_byte, Structure, pointer
-from .globals import BOARD_ROWS, BOARD_COLUMNS, WHITE, BLACK, EMPTY, ILLEGAL, RTILE
+from .globals import BOARD_ROWS, BOARD_COLUMNS, WHITE, BLACK, EMPTY, ILLEGAL, RTILE, MAXIMUM_MOVE_SIZE
+from .move import MoveStruct, MoveType
 from os import environ
+from collections import deque
+from copy import copy
 
 if "LD_LIBRARY_PATH" not in environ:
 	raise ImportError("LD_LIBRARY_PATH must be set to the location of libboard.so before running!")
@@ -17,7 +20,29 @@ class PositionStruct(Structure):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		initPosition(self)
+		if "init" in kwargs and kwargs["init"]:
+			initPosition(self)
+
+		if "empty" in kwargs and kwargs["empty"]:
+			for i in range(BOARD_ROWS):
+				for j in range(BOARD_COLUMNS):
+					self.board[i][j] = EMPTY
+
+		if "parent" in kwargs:
+			self.parent = kwargs["parent"]
+		else:
+			self.parent = None
+
+		if "move" in kwargs:
+			self.move = kwargs["move"]
+		else:
+			self.move = None
+
+		if "turn" in kwargs:
+			self.turn = kwargs["turn"]
+
+		self.direction = 1
+		self.set_direction()
 
 	def __repr__(self):
 		return positionToString(self)
@@ -31,6 +56,71 @@ class PositionStruct(Structure):
 		else:
 			return False
 
+	def __bool__(self):
+		return self.can_move(self.turn)
+
+	def get_available_moves(self):
+		moves = deque()
+		jump_moves = 0
+		queen_moves = 0
+		food_moves = 0
+
+		for i in range(BOARD_ROWS):
+			for j in range(BOARD_COLUMNS):
+				if self.board[i][j] == self.turn:
+					jumps = self.get_all_jumps(i, j)
+					jumps_len = len(jumps)
+					jumps += [moves.pop() for i in range(jump_moves)]
+					jumps.sort(key=(lambda x: x.jump_count), reverse=True)
+					moves.extendleft(jumps)
+					jump_moves += jumps_len
+					queen_moves += jumps_len
+					food_moves += jumps_len
+
+					i_tmp = i + self.direction
+					if i_tmp < BOARD_ROWS:
+						j_tmp = j + 1
+						if j_tmp < BOARD_COLUMNS:
+							if self.board[i_tmp][j_tmp] == EMPTY or \
+								self.board[i_tmp][j_tmp] == RTILE:
+								if self.board[i_tmp][j_tmp] == RTILE:
+									move_type = MoveType.FOOD
+									moves.insert(food_moves, MoveStruct(type=move_type, color=self.turn,
+																		init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
+									food_moves += 1
+								elif i_tmp == 0 or i_tmp == 11:
+									move_type = MoveType.QUEEN
+									moves.insert(queen_moves, MoveStruct(type=move_type, color=self.turn,
+																		init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
+									queen_moves += 1
+									food_moves += 1
+								else:
+									move_type = MoveType.MOVE
+									moves.append(MoveStruct(type=move_type, color=self.turn,
+															init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
+
+						j_tmp = j - 1
+						if j_tmp >= 0:
+							if self.board[i_tmp][j_tmp] == EMPTY or \
+									self.board[i_tmp][j_tmp] == RTILE:
+								if self.board[i_tmp][j_tmp] == RTILE:
+									move_type = MoveType.FOOD
+									moves.insert(food_moves, MoveStruct(type=move_type, color=self.turn,
+																		init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
+									food_moves += 1
+								elif i_tmp == 0 or i_tmp == 11:
+									move_type = MoveType.QUEEN
+									moves.insert(queen_moves, MoveStruct(type=move_type, color=self.turn,
+																		init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
+									queen_moves += 1
+									food_moves += 1
+								else:
+									move_type = MoveType.MOVE
+									moves.append(MoveStruct(type=move_type, color=self.turn,
+															init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
+
+		return moves
+
 	def can_jump(self, row, col, player):
 		return canJump(row, col, player, self)
 
@@ -40,6 +130,7 @@ class PositionStruct(Structure):
 	def do_move(self, move):
 		if self.is_legal(move):
 			doMove(self, move)
+			self.move = move
 			return True
 		else:
 			return False
@@ -49,6 +140,58 @@ class PositionStruct(Structure):
 
 	def can_move(self, player):
 		return canMove(self, player)
+
+	def get_all_jumps(self, row, col, jump_to_here=None):
+		ret = []
+		jump = self.can_jump(row, col, self.turn)
+		if jump != 0:
+			if jump_to_here:
+				k = jump_to_here.jump_count + 1
+				new_move = jump_to_here
+				new_move.jump_count = k
+			else:
+				k = 1
+				new_move = MoveStruct(type=MoveType.JUMP, color=self.turn, jump_count=k, init_pos=[row, col])
+
+			if k + 1 > MAXIMUM_MOVE_SIZE:
+				if jump_to_here:
+					ret.append(jump_to_here)
+
+				return ret
+			elif k + 1 != MAXIMUM_MOVE_SIZE:
+				new_move.tile[0][k + 1] = -1
+
+			new_move.tile[0][k] = row + (2 * self.direction)
+			if jump == 1:
+				new_move.tile[1][k] = col - 2
+				ret += self.get_all_jumps(new_move.tile[0][k], new_move.tile[1][k], new_move)
+			elif jump == 2:
+				new_move.tile[1][k] = col + 2
+				ret += self.get_all_jumps(new_move.tile[0][k], new_move.tile[1][k], new_move)
+			elif jump == 3:
+				r_new_move = copy(new_move)
+				new_move.tile[1][k] = col - 2
+				r_new_move.tile[1][k] = col + 2
+				ret += self.get_all_jumps(new_move.tile[0][k], new_move.tile[1][k], new_move)
+				ret += self.get_all_jumps(r_new_move.tile[0][k], r_new_move.tile[1][k], r_new_move)
+		else:
+			if jump_to_here:
+				ret.append(jump_to_here)
+
+		return ret
+
+	def set_turn(self, turn):
+		self.turn = turn
+		self.set_direction()
+
+	def set_direction(self, direction=None):
+		if direction:
+			self.direction = direction
+		else:
+			if self.turn == BLACK:
+				self.direction = -1
+			else:
+				self.direction = 1
 
 
 def initPosition(pos):
