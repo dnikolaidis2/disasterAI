@@ -11,7 +11,6 @@ from random import random, randint
 
 gamePosition = PositionStruct()     # Position we are going to use
 
-moveReceived = MoveStruct()         # temporary move to retrieve opponent's choice
 myMove = MoveStruct()               # move to save our choice and send it to the server
 
 myColor = -1                        # to store our color
@@ -43,17 +42,11 @@ if __name__ == "__main__":
             print(gamePosition)
         elif msg == NM_COLOR_W:                   # server informs us that we have WHITE color
             myColor = WHITE
-            print(f"My color is {myColor}",)
+            print(f"My color is {myColor}")
 
         elif msg == NM_COLOR_B:                   # server informs us that we have BLACK color
             myColor = BLACK
             print(f"My color is {myColor}")
-
-        elif msg == NM_PREPARE_TO_RECEIVE_MOVE:     # server informs us that he will send opponent's move
-            getMove(moveReceived, mySocket)
-            moveReceived.color = getOtherSide(myColor)
-            gamePosition.do_move(moveReceived)		# play opponent's move on our position
-            print(gamePosition)
 
         elif msg == NM_REQUEST_MOVE:		# server requests our move
             myMove.color = myColor
@@ -130,10 +123,11 @@ if __name__ == "__main__":
                 # *****************************************************
 
             sendMove(myMove, mySocket)			# send our move
-            # printf("i chose to go from (%d,%d), to (%d,%d)\n",myMove.tile[0][0],myMove.tile[1][0],myMove.tile[0][1],myMove.tile[1][1]);
-            gamePosition.do_move(myMove)		# play our move on our position
-            print(gamePosition)
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
             close(mySocket)
-            exit()
+            exit(0)
+
+        else:
+            print("Wrong Signal!")
+            exit(0)
