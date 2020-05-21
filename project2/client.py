@@ -38,13 +38,16 @@ if __name__ == "__main__":
             sendName(agentName, mySocket)
         elif msg == NM_NEW_POSITION:              # server is trying to send us a new position
             getPosition(gamePosition, mySocket)
+            gamePosition.update_enemy_statistics        # Update statistics based on enemy move
             print(gamePosition)
         elif msg == NM_COLOR_W:                   # server informs us that we have WHITE color
             myColor = WHITE
+            gamePosition.set_color(myColor)
             print(f"My color is {myColor}")
 
         elif msg == NM_COLOR_B:                   # server informs us that we have BLACK color
             myColor = BLACK
+            gamePosition.set_color(myColor)
             print(f"My color is {myColor}")
 
         elif msg == NM_REQUEST_MOVE:		# server requests our move

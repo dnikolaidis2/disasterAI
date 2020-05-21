@@ -22,6 +22,16 @@ class PositionStruct(Structure):
 
 		if "init" in kwargs and kwargs["init"]:
 			initPosition(self)
+			
+		self.pieces = 12
+		self.queens = 0
+		self.gath_food = 0
+		self.enemy_pieces = 12
+		self.enemy_queens = 0
+		self.enemy_gath_food = 0
+		self.available_food = get_available_food(self)
+					
+
 
 		if "empty" in kwargs and kwargs["empty"]:
 			for i in range(BOARD_ROWS):
@@ -42,6 +52,8 @@ class PositionStruct(Structure):
 			self.turn = kwargs["turn"]
 
 		self.direction = 1
+		self.color = 0		#Default Color
+		self.enemy_color = 1
 		self.set_direction()
 
 	def __repr__(self):
@@ -180,6 +192,21 @@ class PositionStruct(Structure):
 
 		return ret
 
+	def successor_states(self):
+		moves = self.get_available_moves()
+
+		for move in moves:
+
+			#Create copied child state to apply Moves.
+		
+			#Update statistics for child
+			#child.update_statistics() 			 
+			
+			#Then give an evaluation for each state.
+			#child.state_evaluation()
+			continue 
+
+
 	def set_turn(self, turn):
 		self.turn = turn
 		self.set_direction()
@@ -193,6 +220,63 @@ class PositionStruct(Structure):
 			else:
 				self.direction = 1
 
+	def state_evaluation(self):
+		#Evaluate state
+		return    
+
+	def update_statistics(self):
+		#Update statistics by analyzing the board changes
+		#and comparing with the parent. 
+		return 
+
+	
+	def update_enemy_statistics(self):
+
+		#Step 1 : See current enemy's statistics
+		if self.available_food > 0:
+			updated_food = get_available_food(self)
+			if updated_food < self.available_food:
+				self.available_food = updated_food
+				self.enemy_gath_food += 1
+		
+		updated_enemy_pieces = self.get_available_pieces(self, self.enemy_color)
+		if updated_enemy_pieces < self.enemy_pieces:
+			self.enemy_queens += (self.enemy_pieces - updated_enemy_pieces)
+			self.enemy_pieces = updated_enemy_pieces  
+		
+		'''
+		#Step 2 : See agent's statistics after possible move
+		if move.type ==  MoveType.QUEEN:
+			self.queens += 1
+			self.pieces -= 1
+		
+		if move.type == MoveType.FOOD:
+			self.gath_food += 1
+			self.available_food -= 1
+
+		#Step 3 : Update enemy's statistics after possible move
+		self.enemy_pieces = move.jump_count
+		'''
+
+	def set_color(self, color):
+		self.color = color 
+		self.enemy_color = int(not color)
+
+def get_available_pieces(pos, color):
+	pieces = 0
+	for i in range(BOARD_ROWS):
+		for j in range(BOARD_COLUMNS):
+			if pos.board[i][j] == color:
+				pieces += 1
+	return pieces
+
+def get_available_food(pos):
+	available_food = 0
+	for i in range(BOARD_ROWS):
+		for j in range(BOARD_COLUMNS):
+			if pos.board[i][j] == RTILE:
+				available_food += 1 
+	return available_food
 
 def initPosition(pos):
 	"""
