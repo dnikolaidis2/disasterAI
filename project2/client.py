@@ -38,8 +38,9 @@ if __name__ == "__main__":
             sendName(agentName, mySocket)
         elif msg == NM_NEW_POSITION:              # server is trying to send us a new position
             getPosition(gamePosition, mySocket)
-            gamePosition.update_enemy_statistics        # Update statistics based on enemy move
             print(gamePosition)
+            gamePosition.update_enemy_statistics()        # Update statistics based on enemy move
+            gamePosition.successor_states()
         elif msg == NM_COLOR_W:                   # server informs us that we have WHITE color
             myColor = WHITE
             gamePosition.set_color(myColor)
@@ -123,7 +124,7 @@ if __name__ == "__main__":
                                 break
                 # end of random
                 # *****************************************************
-
+            
             sendMove(myMove, mySocket)			# send our move
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
