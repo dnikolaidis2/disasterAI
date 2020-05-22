@@ -58,6 +58,9 @@ if __name__ == "__main__":
             else:
                 # *****************************************************
                 # random player - not the most efficient implementation
+                
+                '''
+
                 if myColor == WHITE:		# find movement's direction
                     playerDirection = 1
                 else:
@@ -124,8 +127,11 @@ if __name__ == "__main__":
                                 break
                 # end of random
                 # *****************************************************
-            
-            sendMove(myMove, mySocket)			# send our move
+            '''
+            gamePosition = gamePosition.successor_states()[0]
+            #gamePosition.do_move(myMove)
+            #gamePosition.update_statistics()
+            sendMove(gamePosition.move,mySocket)			# send our move
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
             close(mySocket)

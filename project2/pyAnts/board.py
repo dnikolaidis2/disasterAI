@@ -22,14 +22,15 @@ class PositionStruct(Structure):
 
 		if "init" in kwargs and kwargs["init"]:
 			initPosition(self)
-		av = get_available_food(self)	
+
 		self.pieces = 12
 		self.queens = 0
 		self.gath_food = 0
 		self.enemy_pieces = 12
 		self.enemy_queens = 0
 		self.enemy_gath_food = 0
-		self.available_food = av
+		self.available_food = -1
+		self.evaluation = 0
 					
 
 
@@ -195,9 +196,7 @@ class PositionStruct(Structure):
 	def successor_states(self):
 		moves = self.get_available_moves()
 		child_states = []
-		print('\n---------------------------------------\n')
 		for move in moves:
-
 			#Create copied child state to apply Moves.
 			child_states.append(copy(self))
 			child_states[-1].parent = self
@@ -205,14 +204,17 @@ class PositionStruct(Structure):
 				continue 
 			
 			#Update statistics for child
+			child_states[-1].move = move
 			child_states[-1].update_statistics() 			 
 			child_states[-1].print_statistics()
 			
 			#Then give an evaluation for each state.
-			ev = child_states[-1].state_evaluation()
-			print('\n\nState evaluation : '+str(ev))
-
-		print('\n---------------------------------------\n')
+			child_states[-1].evaluation = child_states[-1].state_evaluation()
+			print('\nState evaluation : '+str(child_states[-1].evaluation))
+	 
+			#For now we expect the first move to always be the best move for testing.. 
+		return child_states
+		
 
 	def set_turn(self, turn):
 		self.turn = turn
@@ -229,13 +231,14 @@ class PositionStruct(Structure):
 
 	def state_evaluation(self):
 		
-		return self.pieces + self.available_food + self.queens - self.parent.pieces - self.parent.available_food - self.parent.queens    
+		return self.pieces + self.gath_food + self.queens - self.enemy_pieces - self.enemy_gath_food - self.enemy_queens    
 
 	# Update statistics after agent's turn
 	def update_statistics(self):		
 		self.pieces = get_available_pieces(self, self.color)
 		if self.parent is not None:
-			if get_available_food(self) < self.parent.available_food:
+			self.get_available_food()
+			if self.available_food < self.parent.available_food:
 				self.gath_food += 1
 		
 			if self.pieces < self.parent.pieces:
@@ -247,24 +250,33 @@ class PositionStruct(Structure):
 	# Update statistics after enemy's turn
 	def update_enemy_statistics(self):
 		if self.available_food >= 0:
-			updated_food = get_available_food(self)
-			if updated_food < self.available_food:
-				self.available_food = updated_food
+			prev_food = copy(self.available_food)
+			self.get_available_food()
+			if self.available_food < prev_food:				
 				self.enemy_gath_food += 1
-		
+		else:
+			self.get_available_food()
 		updated_enemy_pieces = get_available_pieces(self, self.enemy_color)
 		if updated_enemy_pieces < self.enemy_pieces:
 			self.enemy_queens += (self.enemy_pieces - updated_enemy_pieces)
 			self.enemy_pieces = updated_enemy_pieces  
 		
-	def print_statistics(self):
-		print('My Pieces :'+str(self.pieces))
-		print('\nMy Food :'+str(self.gath_food))
-		print('\nMy Queens :'+str(self.queens))
-		print('\n\nEnemy Pieces'+str(self.enemy_pieces))
-		print('\nEnemy Food :'+str(self.enemy_gath_food))
-		print('\nEnemy Queens :'+str(self.enemy_queens))
+	def get_available_food(self):
+		self.available_food = 0
+		for i in range(BOARD_ROWS):
+			for j in range(BOARD_COLUMNS):
+				if self.board[i][j] == RTILE:
+					self.available_food += 1 
+		
 
+	def print_statistics(self):
+		print('\n\nMy Pieces :'+str(self.pieces))
+		print('My Food :'+str(self.gath_food))
+		print('My Queens :'+str(self.queens))
+		print('Enemy Pieces'+str(self.enemy_pieces))
+		print('Enemy Food :'+str(self.enemy_gath_food))
+		print('Enemy Queens :'+str(self.enemy_queens))
+		print('Total Food :'+str(self.available_food))
 
 	def set_color(self, color):
 		self.color = color 
@@ -278,13 +290,6 @@ def get_available_pieces(pos, color):
 				pieces += 1
 	return pieces
 
-def get_available_food(pos):
-	available_food = 0
-	for i in range(BOARD_ROWS):
-		for j in range(BOARD_COLUMNS):
-			if pos.board[i][j] == RTILE:
-				available_food += 1 
-	return available_food
 
 
 
