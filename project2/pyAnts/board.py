@@ -203,8 +203,7 @@ class PositionStruct(Structure):
 			if not child_states[-1].do_move(move):
 				continue 
 			
-			#Update statistics for child
-			child_states[-1].move = move	#Is this necessary? 
+			#Update statistics for child			 
 			child_states[-1].update_statistics() 			 
 			child_states[-1].print_statistics()
 			
@@ -249,6 +248,7 @@ class PositionStruct(Structure):
 
 	# Update statistics after enemy's turn
 	def update_enemy_statistics(self):
+		self.pieces =  get_available_pieces(self, self.color)
 		if self.available_food >= 0:
 			prev_food = copy(self.available_food)
 			self.get_available_food()

@@ -40,8 +40,7 @@ if __name__ == "__main__":
         elif msg == NM_NEW_POSITION:              # server is trying to send us a new position
             getPosition(gamePosition, mySocket)
             print(gamePosition)
-            gamePosition.update_enemy_statistics()        # Update statistics based on enemy move
-            gamePosition.successor_states()
+            gamePosition.update_enemy_statistics()        # Update statistics based on enemy move            
         elif msg == NM_COLOR_W:                   # server informs us that we have WHITE color
             myColor = WHITE
             gamePosition.set_color(myColor)
