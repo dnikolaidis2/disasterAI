@@ -128,9 +128,15 @@ if __name__ == "__main__":
                 # end of random
                 # *****************************************************
             '''
-            gamePosition = gamePosition.successor_states()[0]
-            #gamePosition.do_move(myMove)
-            #gamePosition.update_statistics()
+            max_value = -1000000
+            for node in gamePosition.successor_states():                
+                value = minimax(node, 5, True, -100000, 100000)
+                if value > max_value:
+                    max_value = value
+                    selected_node = node
+            
+            #gamePosition = gamePosition.successor_states()[0]
+            gamePosition = selected_node            
             sendMove(gamePosition.move,mySocket)			# send our move
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey

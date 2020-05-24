@@ -205,11 +205,11 @@ class PositionStruct(Structure):
 			
 			#Update statistics for child			 
 			child_states[-1].update_statistics() 			 
-			child_states[-1].print_statistics()
+			#child_states[-1].print_statistics()
 			
 			#Then give an evaluation for each state.
 			child_states[-1].evaluation = child_states[-1].state_evaluation()
-			print('\nState evaluation : '+str(child_states[-1].evaluation))
+			#print('\nState evaluation : '+str(child_states[-1].evaluation))
 	 
 			#For now we expect the first move to always be the best move for testing.. 
 		return child_states
@@ -285,7 +285,7 @@ class PositionStruct(Structure):
 	def is_terminal(self):
 		for i in range(BOARD_ROWS):
 			for j in range(BOARD_COLUMNS):
-				if self.board != EMPTY:
+				if self.board[i][j] != EMPTY:
 					return 0
 		return 1
 
