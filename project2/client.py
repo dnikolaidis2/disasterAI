@@ -7,6 +7,7 @@ from pyAnts.comm import connectToTarget, recvMsg, NM_COLOR_B,\
 from pyAnts.globals import BLACK, WHITE, BOARD_COLUMNS, BOARD_ROWS, MAXIMUM_MOVE_SIZE, DEFAULT_PORT
 from os import close
 from random import random, randint
+from pyAnts.minimax import minimax
 
 gamePosition = PositionStruct()     # Position we are going to use
 

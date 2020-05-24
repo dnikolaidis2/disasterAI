@@ -204,7 +204,7 @@ class PositionStruct(Structure):
 				continue 
 			
 			#Update statistics for child
-			child_states[-1].move = move
+			child_states[-1].move = move	#Is this necessary? 
 			child_states[-1].update_statistics() 			 
 			child_states[-1].print_statistics()
 			
@@ -273,7 +273,7 @@ class PositionStruct(Structure):
 		print('\n\nMy Pieces :'+str(self.pieces))
 		print('My Food :'+str(self.gath_food))
 		print('My Queens :'+str(self.queens))
-		print('Enemy Pieces'+str(self.enemy_pieces))
+		print('Enemy Pieces :'+str(self.enemy_pieces))
 		print('Enemy Food :'+str(self.enemy_gath_food))
 		print('Enemy Queens :'+str(self.enemy_queens))
 		print('Total Food :'+str(self.available_food))
@@ -281,6 +281,13 @@ class PositionStruct(Structure):
 	def set_color(self, color):
 		self.color = color 
 		self.enemy_color = int(not color)
+
+	def is_terminal(self):
+		for i in range(BOARD_ROWS):
+			for j in range(BOARD_COLUMNS):
+				if self.board != EMPTY:
+					return 0
+		return 1
 
 def get_available_pieces(pos, color):
 	pieces = 0
