@@ -17,3 +17,6 @@ newRandomLevel.world
 **/server
 **/guiServer
 *.so
+project2/pyAnts/test.py
+
+project2/runClient.sh
