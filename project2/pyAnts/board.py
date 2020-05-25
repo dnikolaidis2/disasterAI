@@ -31,6 +31,7 @@ class PositionStruct(Structure):
 		self.enemy_gath_food = 0
 		self.available_food = -1
 		self.evaluation = 0
+		self.in_danger = 0 			
 					
 
 
@@ -231,7 +232,19 @@ class PositionStruct(Structure):
 
 	def state_evaluation(self):
 		
-		return self.pieces + self.gath_food + self.queens - self.enemy_pieces - self.enemy_gath_food - self.enemy_queens    
+		for i in range(1,BOARD_ROWS-1):
+			for j in range(1,BOARD_COLUMNS-1):
+				if self.board[i][j] == self.color:
+					if self.color == 0:
+						if self.board[i+1][j+1] == self.enemy_color or self.board[i+1][j-1] == self.enemy_color:
+							self.in_danger = -1
+					else:
+						if self.board[i-1][j+1] == self.enemy_color or self.board[i-1][j-1] == self.enemy_color:
+							self.in_danger = -1
+
+		
+
+		return self.pieces + self.gath_food + self.queens - self.enemy_pieces - self.enemy_gath_food - self.enemy_queens + self.in_danger    
 
 	# Update statistics after agent's turn
 	def update_statistics(self):		

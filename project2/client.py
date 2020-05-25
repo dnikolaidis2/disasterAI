@@ -136,7 +136,7 @@ if __name__ == "__main__":
             max_value = -1000000
             selected_node = None
             for node in gamePosition.successor_states():
-                value = minimax(node, 5, True, -100000, 100000)
+                value = minimax(node, 7, True, -100000, 100000)
                 if value > max_value:
                     max_value = value
                     selected_node = node
