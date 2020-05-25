@@ -83,7 +83,7 @@ class PositionStruct(Structure):
 				if self.board[i][j] == self.turn:
 					jumps = self.get_all_jumps(i, j)
 					jumps_len = len(jumps)
-					jumps += [moves.pop() for i in range(jump_moves)]
+					jumps += [moves.popleft() for i in range(jump_moves)]
 					jumps.sort(key=(lambda x: x.jump_count), reverse=True)
 					moves.extendleft(jumps)
 					jump_moves += jumps_len
@@ -131,6 +131,9 @@ class PositionStruct(Structure):
 									move_type = MoveType.MOVE
 									moves.append(MoveStruct(type=move_type, color=self.turn,
 															init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
+
+		if jump_moves != 0:
+			return deque([moves.popleft() for i in range(jump_moves)])
 
 		return moves
 
@@ -197,23 +200,21 @@ class PositionStruct(Structure):
 		moves = self.get_available_moves()
 		child_states = []
 		for move in moves:
-			#Create copied child state to apply Moves.
+			# Create copied child state to apply Moves.
 			child_states.append(copy(self))
 			child_states[-1].parent = self
 			if not child_states[-1].do_move(move):
 				continue 
 			
-			#Update statistics for child			 
-			child_states[-1].update_statistics() 			 
-			#child_states[-1].print_statistics()
+			# Update statistics for child
+			child_states[-1].update_statistics()
+			# child_states[-1].print_statistics()
 			
-			#Then give an evaluation for each state.
+			# Then give an evaluation for each state.
 			child_states[-1].evaluation = child_states[-1].state_evaluation()
-			#print('\nState evaluation : '+str(child_states[-1].evaluation))
-	 
-			#For now we expect the first move to always be the best move for testing.. 
+			# print('\nState evaluation : '+str(child_states[-1].evaluation))
+			# For now we expect the first move to always be the best move for testing..
 		return child_states
-		
 
 	def set_turn(self, turn):
 		self.turn = turn
@@ -244,11 +245,10 @@ class PositionStruct(Structure):
 				self.queens += 1
 
 		self.enemy_pieces -= self.move.jump_count
- 
 
 	# Update statistics after enemy's turn
 	def update_enemy_statistics(self):
-		self.pieces =  get_available_pieces(self, self.color)
+		self.pieces = get_available_pieces(self, self.color)
 		if self.available_food >= 0:
 			prev_food = copy(self.available_food)
 			self.get_available_food()
@@ -267,7 +267,6 @@ class PositionStruct(Structure):
 			for j in range(BOARD_COLUMNS):
 				if self.board[i][j] == RTILE:
 					self.available_food += 1 
-		
 
 	def print_statistics(self):
 		print('\n\nMy Pieces :'+str(self.pieces))
@@ -289,6 +288,7 @@ class PositionStruct(Structure):
 					return 0
 		return 1
 
+
 def get_available_pieces(pos, color):
 	pieces = 0
 	for i in range(BOARD_ROWS):
@@ -296,8 +296,6 @@ def get_available_pieces(pos, color):
 			if pos.board[i][j] == color:
 				pieces += 1
 	return pieces
-
-
 
 
 def initPosition(pos):

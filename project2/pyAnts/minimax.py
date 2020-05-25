@@ -1,6 +1,7 @@
 
 def minimax(node, depth, maximizingPlayer, a, b):
-    if depth == 0 or node.is_terminal():     #What makes a node Terminal? 
+    # What makes a node Terminal?
+    if depth == 0 or node.is_terminal():
         return node.state_evaluation()
 
     if maximizingPlayer:
@@ -20,7 +21,7 @@ def minimax(node, depth, maximizingPlayer, a, b):
         for child in node.successor_states():
             value = min(value, minimax(child, depth-1, True, a, b))
             b = min(b, value)
-            if a >= b: 
+            if a >= b:
                 break 
         
         return value
