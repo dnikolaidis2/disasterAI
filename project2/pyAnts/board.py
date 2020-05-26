@@ -32,8 +32,6 @@ class PositionStruct(Structure):
 		self.available_food = -1
 		self.evaluation = 0
 		self.in_danger = 0 			
-					
-
 
 		if "empty" in kwargs and kwargs["empty"]:
 			for i in range(BOARD_ROWS):
@@ -54,7 +52,7 @@ class PositionStruct(Structure):
 			self.turn = kwargs["turn"]
 
 		self.direction = 1
-		self.color = 0		#Default Color
+		self.color = 0			# Default Color
 		self.enemy_color = 1
 		self.set_direction()
 
@@ -232,8 +230,8 @@ class PositionStruct(Structure):
 
 	def state_evaluation(self):
 		
-		for i in range(1,BOARD_ROWS-1):
-			for j in range(1,BOARD_COLUMNS-1):
+		for i in range(1, BOARD_ROWS-1):
+			for j in range(1, BOARD_COLUMNS-1):
 				if self.board[i][j] == self.color:
 					if self.color == 0:
 						if self.board[i+1][j+1] == self.enemy_color or self.board[i+1][j-1] == self.enemy_color:
@@ -247,7 +245,7 @@ class PositionStruct(Structure):
 		return self.pieces + self.gath_food + self.queens - self.enemy_pieces - self.enemy_gath_food - self.enemy_queens + self.in_danger    
 
 	# Update statistics after agent's turn
-	def update_statistics(self):		
+	def update_statistics(self):
 		self.pieces = get_available_pieces(self, self.color)
 		if self.parent is not None:
 			self.get_available_food()
@@ -291,15 +289,16 @@ class PositionStruct(Structure):
 		print('Total Food :'+str(self.available_food))
 
 	def set_color(self, color):
-		self.color = color 
+		self.set_turn(color)
+		self.color = color
 		self.enemy_color = int(not color)
 
 	def is_terminal(self):
 		for i in range(BOARD_ROWS):
 			for j in range(BOARD_COLUMNS):
-				if self.board[i][j] != EMPTY:
-					return 0
-		return 1
+				if self.board[i][j] == WHITE or self.board[i][j] == BLACK:
+					return False
+		return True
 
 
 def get_available_pieces(pos, color):

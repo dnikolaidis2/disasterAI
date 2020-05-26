@@ -11,8 +11,9 @@
 /**********************************************************/
 int main( int argc, char **argv )
 {
-
-
+	int playerOneWins = 0;
+	int playerTwoWins = 0;
+	int drawCount = 0;
 
 	int c;
 	opterr = 0;
@@ -148,10 +149,12 @@ int main( int argc, char **argv )
 					if( playerOne.color == WHITE )
 					{
 						printf( "WHITE WON! (%s) Score W:%d B:%d\n", playerOne.name,gamePosition.score[ WHITE ], gamePosition.score[ BLACK ] );
+						playerOneWins++;
 					}
 					else
 					{
 						printf( "WHITE WON! (%s) Score W:%d B:%d\n", playerTwo.name, gamePosition.score[ WHITE ], gamePosition.score[ BLACK ] );
+						playerTwoWins++;
 					}
 				}
 				else if( gamePosition.score[ WHITE ] - gamePosition.score[ BLACK ] < 0 )
@@ -160,24 +163,22 @@ int main( int argc, char **argv )
 					if( playerOne.color == BLACK )
 					{
 						printf( "BLACK WON! (%s) Score W:%d B:%d\n", playerOne.name, gamePosition.score[ WHITE ], gamePosition.score[ BLACK ] );
+						playerOneWins++;
 					}
 					else
 					{
 						printf( "BLACK WON! (%s) Score W:%d B:%d\n", playerTwo.name, gamePosition.score[ WHITE ], gamePosition.score[ BLACK ] );
+						playerTwoWins++;
 					}
 				}
 				else
-					printf( "DRAW! Score W:%d B:%d\n", gamePosition.score[ WHITE ], gamePosition.score[ BLACK ] );
+				{	printf( "DRAW! Score W:%d B:%d\n", gamePosition.score[ WHITE ], gamePosition.score[ BLACK ] );
+					drawCount++;
+				}
 
 				break;
 
 			}
-
-
-		
-			
-		
-
 
 		}
 
@@ -204,6 +205,14 @@ int main( int argc, char **argv )
 
 	sendMsg( NM_QUIT, playerOne.playerSocket );
 	sendMsg( NM_QUIT, playerTwo.playerSocket );
+
+	printf("\nTotal game count: %d\n", numberOfGames);
+	printf("Player one: %s\n", playerOne.name);
+	printf("|%7s|%7s|%7s|\n", "Wins", "Losses", "Draws");
+	printf("|%7d|%7d|%7d|\n", playerOneWins, playerTwoWins, drawCount);
+	printf("\nPlayer one: %s\n", playerTwo.name);
+	printf("|%7s|%7s|%7s|\n", "Wins", "Losses", "Draws");
+	printf("|%7d|%7d|%7d|\n", playerTwoWins, playerOneWins, drawCount);
 
 	return 0;
 }
