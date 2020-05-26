@@ -10,6 +10,8 @@ from os import close
 from pyAnts.minimax import minimax
 from copy import copy
 from random import randint, random
+from time import time
+from statistics import mean
 
 gamePosition = None                 # Position we are going to use
 
@@ -18,9 +20,11 @@ myMove = MoveStruct()               # move to save our choice and send it to the
 myColor = -1                        # to store our color
 mySocket = 0                        # our socket
 
-agentName = "MasterOfDisaster"      # agent name
+agentName = "AgeAnt"      # agent name
 
 ip = "127.0.0.1"                    # default ip
+
+perfTimes = []
 
 
 if __name__ == "__main__":
@@ -82,6 +86,7 @@ if __name__ == "__main__":
                 sendMove(myMove, mySocket)  # send our move
                 continue
             else:
+                start = time()
                 max_value = -1000000
                 selected_node = None
                 for node in gamePosition.successor_states():
@@ -94,8 +99,11 @@ if __name__ == "__main__":
                 if selected_node.is_terminal():
                     gamePosition = None
                 sendMove(selected_node.move, mySocket)			# send our move
+                end = time()
+                perfTimes.append(end - start)
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
+            print(f"Average decision time(Only minimax): {mean(perfTimes):.2f}s")
             close(mySocket)
             exit(0)
 
