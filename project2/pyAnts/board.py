@@ -232,36 +232,41 @@ class PositionStruct(Structure):
 		
 		if switch:
 			self.is_in_danger()
-			#self.moves_en_masse()	
+			self.moves_en_masse()	
 
 		return self.pieces + self.gath_food + self.queens + 0.5*self.en_masse - self.enemy_pieces - self.enemy_gath_food - self.enemy_queens + self.in_danger    
 
 	def is_in_danger(self):
 		self.in_danger = 0
-		for i in range(1, BOARD_ROWS-1):
-			for j in range(1, BOARD_COLUMNS-1):
-				if self.board[i][j] == self.color:
-					if self.color == WHITE:
-						if self.board[i+1][j+1] == self.enemy_color or self.board[i+1][j-1] == self.enemy_color:
-							self.in_danger = -1
-					else:
-						if self.board[i-1][j+1] == self.enemy_color or self.board[i-1][j-1] == self.enemy_color:
-							self.in_danger = -1
-		
-	def moves_en_masse(self):
-		self.en_masse = 0
-		#if self.backups > self.parent.backups:
-		#	self.en_masse = 1
 		pos = self.get_destination()
-		if pos[0] == BOARD_ROWS-1 or pos[0] == 0 or pos[1] == BOARD_COLUMNS-1 or pos[1] == 0:
-			return 
-		if self.color == WHITE:
-			if self.board[pos[0]+1][pos[1]+1] == self.color or self.board[pos[0]+1][pos[1]-1] == self.color:
-				self.en_masse = +1
+		if pos[0] == BOARD_ROWS-1 or pos[0] == 0:
+			return
+		if pos[1] == BOARD_COLUMNS-1:
+			if self.board[pos[0]+self.direction][pos[1]-1] == self.enemy_color:
+				self.in_danger = -1
+		elif pos[1] == 0:
+			if self.board[pos[0]+self.direction][pos[1]+1] == self.enemy_color:
+				self.in_danger = -1
 		else:
-			if self.board[pos[0]-1][pos[1]+1] == self.color or self.board[pos[0]-1][pos[1]-1] == self.color:
-				self.en_masse = +1
+			if self.board[pos[0]+self.direction][pos[1]+1] == self.enemy_color or self.board[pos[0]+self.direction][pos[1]-1] == self.enemy_color:
+				self.in_danger = -1
 
+
+	def moves_en_masse(self):
+		self.en_masse = 0		
+		pos = self.get_destination()
+		if pos[0] == BOARD_ROWS-1 or pos[0] == 0:
+			return 
+		if pos[1] == BOARD_COLUMNS-1:
+			if self.board[pos[0]+self.direction][pos[1]-1] == self.color:
+				self.en_masse = +1
+		elif pos[1] == 0:
+			if self.board[pos[0]+self.direction][pos[1]+1] == self.color:
+				self.en_masse = +1
+		else:		
+			if self.board[pos[0]+self.direction][pos[1]+1] == self.color or self.board[pos[0]+self.direction][pos[1]-1] == self.color:
+				self.en_masse = +1
+		
 	# Update statistics after agent's turn
 	def update_statistics(self):		
 		self.pieces = get_available_pieces(self, self.color)		
