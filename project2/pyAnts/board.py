@@ -32,7 +32,8 @@ class PositionStruct(Structure):
 		self.available_food = -1
 		self.evaluation = 0
 		self.in_danger = 0 			
-
+		self.backups = 8
+		self.en_masse = 0
 		if "empty" in kwargs and kwargs["empty"]:
 			for i in range(BOARD_ROWS):
 				for j in range(BOARD_COLUMNS):
@@ -195,7 +196,7 @@ class PositionStruct(Structure):
 
 		return ret
 
-	def successor_states(self):
+	def successor_states(self, advanced_switch):
 		moves = self.get_available_moves()
 		child_states = []
 		for move in moves:
@@ -210,7 +211,7 @@ class PositionStruct(Structure):
 			# child_states[-1].print_statistics()
 			
 			# Then give an evaluation for each state.
-			child_states[-1].evaluation = child_states[-1].state_evaluation()
+			child_states[-1].evaluation = child_states[-1].state_evaluation(advanced_switch)
 			# print('\nState evaluation : '+str(child_states[-1].evaluation))
 			# For now we expect the first move to always be the best move for testing..
 		return child_states
@@ -228,38 +229,49 @@ class PositionStruct(Structure):
 			else:
 				self.direction = 1
 
-	def state_evaluation(self):
+	def state_evaluation(self, switch):
 		
+		if switch:
+			self.is_in_danger()
+			self.moves_en_masse()	
+
+		return self.pieces + self.gath_food + self.queens + self.en_masse - self.enemy_pieces - self.enemy_gath_food - self.enemy_queens + self.in_danger    
+
+	def is_in_danger(self):
+		self.in_danger = 0
 		for i in range(1, BOARD_ROWS-1):
 			for j in range(1, BOARD_COLUMNS-1):
 				if self.board[i][j] == self.color:
-					if self.color == 0:
+					if self.color == WHITE:
 						if self.board[i+1][j+1] == self.enemy_color or self.board[i+1][j-1] == self.enemy_color:
 							self.in_danger = -1
 					else:
 						if self.board[i-1][j+1] == self.enemy_color or self.board[i-1][j-1] == self.enemy_color:
 							self.in_danger = -1
-
 		
-
-		return self.pieces + self.gath_food + self.queens - self.enemy_pieces - self.enemy_gath_food - self.enemy_queens + self.in_danger    
+	def moves_en_masse(self):
+		self.en_masse = 0
+		if self.backups > self.parent.backups:
+			self.en_masse = 1		
 
 	# Update statistics after agent's turn
-	def update_statistics(self):
+	def update_statistics(self):		
 		self.pieces = get_available_pieces(self, self.color)
+		self.get_backups()
 		if self.parent is not None:
 			self.get_available_food()
 			if self.available_food < self.parent.available_food:
 				self.gath_food += 1
 		
 			if self.pieces < self.parent.pieces:
-				self.queens += 1
+				self.queens += 1			 
 
 		self.enemy_pieces -= self.move.jump_count
 
 	# Update statistics after enemy's turn
 	def update_enemy_statistics(self):
 		self.pieces = get_available_pieces(self, self.color)
+		self.get_backups()
 		if self.available_food >= 0:
 			prev_food = copy(self.available_food)
 			self.get_available_food()
@@ -277,7 +289,20 @@ class PositionStruct(Structure):
 		for i in range(BOARD_ROWS):
 			for j in range(BOARD_COLUMNS):
 				if self.board[i][j] == RTILE:
-					self.available_food += 1 
+					self.available_food += 1
+
+	def get_backups(self):
+		for i in range(1, BOARD_ROWS-1):
+			for j in range(1, BOARD_COLUMNS-1):
+				if self.board[i][j] == self.color:
+					if self.color == WHITE:
+						if self.board[i+1][j+1] == self.enemy_color or self.board[i+1][j-1] == self.enemy_color:
+							self.in_danger = -1
+					else:
+						if self.board[i-1][j+1] == self.enemy_color or self.board[i-1][j-1] == self.enemy_color:
+							self.in_danger = -1
+
+
 
 	def print_statistics(self):
 		print('\n\nMy Pieces :'+str(self.pieces))

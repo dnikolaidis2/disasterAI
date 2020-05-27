@@ -33,6 +33,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', metavar='port', default=DEFAULT_PORT, help="The port to connect to.")
     parser.add_argument('-nalphabeta', default=True, action='store_false', help="Disable alpha beta pruning algorithm.")
     parser.add_argument('-depth', default=5, help="Depth from minimax algorithm.", type=int)
+    parser.add_argument('-ev_switch', default=True, action='store_false' ,help="Enables better evaluation")
 
     args = parser.parse_args()
 
@@ -72,7 +73,7 @@ if __name__ == "__main__":
                 tmpPos.set_color(tmpPos.enemy_color)
 
                 final_round = False
-                for state in tmpPos.successor_states():
+                for state in tmpPos.successor_states(args.ev_switch):
                     if state.is_terminal():
                         final_round = True
                     else:
@@ -89,8 +90,8 @@ if __name__ == "__main__":
                 start = time()
                 max_value = -1000000
                 selected_node = None
-                for node in gamePosition.successor_states():
-                    value = minimax(node, args.depth, True, -100000, 100000, args.nalphabeta)
+                for node in gamePosition.successor_states(args.ev_switch):
+                    value = minimax(node, args.depth, True, -100000, 100000, args.nalphabeta, args.ev_switch)
                     if value > max_value:
                         max_value = value
                         selected_node = node
