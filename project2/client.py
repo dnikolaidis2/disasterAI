@@ -65,9 +65,10 @@ if __name__ == "__main__":
             myColor = BLACK
             gamePosition.set_color(myColor)
             print(f"My color is {myColor}")
-
+        
         elif msg == NM_REQUEST_MOVE:		# server requests our move
-            myMove.color = myColor
+            gamePosition.set_color(myColor)
+            myMove.color = myColor 
             if not gamePosition.can_move(myColor):
                 tmpPos = copy(gamePosition)
                 tmpPos.set_color(tmpPos.enemy_color)
