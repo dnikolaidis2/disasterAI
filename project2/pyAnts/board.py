@@ -238,7 +238,7 @@ class PositionStruct(Structure):
 
 	def is_in_danger(self):
 		self.in_danger = 0
-		pos = self.get_destination()
+		pos = self.move.get_destination()
 		if pos[0] == BOARD_ROWS-1 or pos[0] == 0:
 			return
 		if pos[1] == BOARD_COLUMNS-1:
@@ -301,15 +301,6 @@ class PositionStruct(Structure):
 			for j in range(BOARD_COLUMNS):
 				if self.board[i][j] == RTILE:
 					self.available_food += 1
-
-	def get_destination(self):
-		if self.move.tile[0][0] == -1:
-			return None
-
-		for i in reversed(range(MAXIMUM_MOVE_SIZE)):
-			if self.move.tile[0][i] == -1:
-				return [self.move.tile[0][i - 1], self.move.tile[1][i - 1]]
-		return [self.move.tile[0][MAXIMUM_MOVE_SIZE-1], self.move.tile[1][MAXIMUM_MOVE_SIZE-1]]
 
 	def print_statistics(self):
 		print('\n\nMy Pieces :'+str(self.pieces))

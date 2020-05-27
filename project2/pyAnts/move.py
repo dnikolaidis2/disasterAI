@@ -67,6 +67,16 @@ class MoveStruct(Structure):
 		else:
 			return False
 
+	def get_destination(self):
+		if self.tile[0][0] == -1:
+			return None
+
+		for i in reversed(range(MAXIMUM_MOVE_SIZE)):
+			if self.tile[0][i] == -1:
+				return [self.tile[0][i - 1], self.tile[1][i - 1]]
+
+		return [self.tile[0][MAXIMUM_MOVE_SIZE], self.tile[1][MAXIMUM_MOVE_SIZE]]
+
 
 """
 Caution!

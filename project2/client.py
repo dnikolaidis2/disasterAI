@@ -20,7 +20,7 @@ myMove = MoveStruct()               # move to save our choice and send it to the
 myColor = -1                        # to store our color
 mySocket = 0                        # our socket
 
-agentName = "AgeAnt"      # agent name
+agentName = "AgeAnt"                # agent name
 
 ip = "127.0.0.1"                    # default ip
 
@@ -31,11 +31,14 @@ if __name__ == "__main__":
     parser = ArgumentParser(description='This is the python version of the client program for the Project TUCAnts')
     parser.add_argument('-i', metavar='ip', default="127.0.0.1", help="The ip to connect to.")
     parser.add_argument('-p', metavar='port', default=DEFAULT_PORT, help="The port to connect to.")
+    parser.add_argument('-name', default="AgeAnt", help="Give the agent a new name.")
     parser.add_argument('-nalphabeta', default=True, action='store_false', help="Disable alpha beta pruning algorithm.")
     parser.add_argument('-depth', default=5, help="Depth from minimax algorithm.", type=int)
-    parser.add_argument('-ev_switch', default=True, action='store_false' ,help="Enables better evaluation")
+    parser.add_argument('-ev_switch', default=True, action='store_false', help="Enables better evaluation")
 
     args = parser.parse_args()
+
+    agentName = args.name
 
     ip = args.i
 
