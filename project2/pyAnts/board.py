@@ -73,21 +73,21 @@ class PositionStruct(Structure):
 
 	def get_available_moves(self):
 		moves = deque()
-		jump_moves = 0
-		queen_moves = 0
-		food_moves = 0
+		jump_ind = 0
+		queen_ind = 0
+		food_ind = 0
 
 		for i in range(BOARD_ROWS):
 			for j in range(BOARD_COLUMNS):
 				if self.board[i][j] == self.turn:
 					jumps = self.get_all_jumps(i, j)
 					jumps_len = len(jumps)
-					jumps += [moves.popleft() for i in range(jump_moves)]
+					jumps += [moves.popleft() for i in range(jump_ind)]
 					jumps.sort(key=(lambda x: x.jump_count), reverse=True)
 					moves.extendleft(jumps)
-					jump_moves += jumps_len
-					queen_moves += jumps_len
-					food_moves += jumps_len
+					jump_ind += jumps_len
+					queen_ind += jumps_len
+					food_ind += jumps_len
 
 					i_tmp = i + self.direction
 					if i_tmp < BOARD_ROWS:
@@ -97,15 +97,15 @@ class PositionStruct(Structure):
 								self.board[i_tmp][j_tmp] == RTILE:
 								if self.board[i_tmp][j_tmp] == RTILE:
 									move_type = MoveType.FOOD
-									moves.insert(food_moves, MoveStruct(type=move_type, color=self.turn,
+									moves.insert(food_ind, MoveStruct(type=move_type, color=self.turn,
 																		init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
-									food_moves += 1
+									food_ind += 1
 								elif i_tmp == 0 or i_tmp == 11:
 									move_type = MoveType.QUEEN
-									moves.insert(queen_moves, MoveStruct(type=move_type, color=self.turn,
+									moves.insert(queen_ind, MoveStruct(type=move_type, color=self.turn,
 																		init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
-									queen_moves += 1
-									food_moves += 1
+									queen_ind += 1
+									food_ind += 1
 								else:
 									move_type = MoveType.MOVE
 									moves.append(MoveStruct(type=move_type, color=self.turn,
@@ -117,22 +117,27 @@ class PositionStruct(Structure):
 									self.board[i_tmp][j_tmp] == RTILE:
 								if self.board[i_tmp][j_tmp] == RTILE:
 									move_type = MoveType.FOOD
-									moves.insert(food_moves, MoveStruct(type=move_type, color=self.turn,
+									moves.insert(food_ind, MoveStruct(type=move_type, color=self.turn,
 																		init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
-									food_moves += 1
+									food_ind += 1
 								elif i_tmp == 0 or i_tmp == 11:
 									move_type = MoveType.QUEEN
-									moves.insert(queen_moves, MoveStruct(type=move_type, color=self.turn,
+									moves.insert(queen_ind, MoveStruct(type=move_type, color=self.turn,
 																		init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
-									queen_moves += 1
-									food_moves += 1
+									queen_ind += 1
+									food_ind += 1
 								else:
 									move_type = MoveType.MOVE
 									moves.append(MoveStruct(type=move_type, color=self.turn,
 															init_pos=[i, j], dest_pos=[i_tmp, j_tmp]))
 
-		if jump_moves != 0:
-			return deque([moves.popleft() for i in range(jump_moves)])
+		if jump_ind != 0:
+			return deque([moves.popleft() for i in range(jump_ind)])
+
+		if self.color == BLACK:
+			move_count = len(moves) - food_ind
+			move_moves = [moves.pop() for i in range(move_count)]
+			moves.extend(move_moves)
 
 		return moves
 
@@ -195,7 +200,7 @@ class PositionStruct(Structure):
 
 		return ret
 
-	def successor_states(self, advanced_switch):
+	def successor_states(self):
 		moves = self.get_available_moves()
 		child_states = []
 		for move in moves:
@@ -208,9 +213,7 @@ class PositionStruct(Structure):
 			# Update statistics for child
 			child_states[-1].update_statistics()
 			# child_states[-1].print_statistics()
-			
-			# Then give an evaluation for each state.
-			child_states[-1].evaluation = child_states[-1].state_evaluation(advanced_switch)
+
 			# print('\nState evaluation : '+str(child_states[-1].evaluation))
 			# For now we expect the first move to always be the best move for testing..
 		return child_states
@@ -228,11 +231,12 @@ class PositionStruct(Structure):
 			else:
 				self.direction = 1
 
-	def state_evaluation(self, switch):
-		
-		if switch:
+	def state_evaluation(self, in_danger, en_masse):
+		if in_danger:
 			self.is_in_danger()
-			self.moves_en_masse()	
+
+		if en_masse:
+			self.moves_en_masse()
 
 		return self.pieces + self.gath_food + self.queens + 0.5*self.en_masse - self.enemy_pieces - self.enemy_gath_food - self.enemy_queens + self.in_danger    
 
@@ -251,10 +255,9 @@ class PositionStruct(Structure):
 			if self.board[pos[0]+self.direction][pos[1]+1] == self.enemy_color or self.board[pos[0]+self.direction][pos[1]-1] == self.enemy_color:
 				self.in_danger = -1
 
-
 	def moves_en_masse(self):
 		self.en_masse = 0		
-		pos = self.get_destination()
+		pos = self.move.get_destination()
 		if pos[0] == BOARD_ROWS-1 or pos[0] == 0:
 			return 
 		if pos[1] == BOARD_COLUMNS-1:

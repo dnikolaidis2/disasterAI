@@ -4,12 +4,10 @@ from argparse import ArgumentParser, ArgumentError
 from pyAnts.comm import connectToTarget, recvMsg, NM_COLOR_B,\
     NM_COLOR_W, NM_NEW_POSITION, NM_QUIT, NM_REQUEST_MOVE,\
     NM_REQUEST_NAME, sendName, getPosition, sendMove
-from pyAnts.globals import BLACK, WHITE, DEFAULT_PORT, \
-    BOARD_COLUMNS, BOARD_ROWS, MAXIMUM_MOVE_SIZE
+from pyAnts.globals import BLACK, WHITE, DEFAULT_PORT
 from os import close
-from pyAnts.minimax import minimax
+from pyAnts.adversarial_search import minimax
 from copy import copy
-from random import randint, random
 from time import time
 from statistics import mean
 
@@ -26,6 +24,7 @@ ip = "127.0.0.1"                    # default ip
 
 perfTimes = []
 
+mmstats = False
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='This is the python version of the client program for the Project TUCAnts')
@@ -34,10 +33,13 @@ if __name__ == "__main__":
     parser.add_argument('-name', default="AgeAnt", help="Give the agent a new name.")
     parser.add_argument('-nalphabeta', default=True, action='store_false', help="Disable alpha beta pruning algorithm.")
     parser.add_argument('-depth', default=5, help="Depth from minimax algorithm.", type=int)
-    parser.add_argument('-ev_switch', default=True, action='store_false', help="Enables better evaluation")
+    parser.add_argument('-nindanger', default=True, action='store_false', help="Disables in_danger evaluation part.")
+    parser.add_argument('-nenamsse', default=True, action='store_false', help="Disables en_masse evaluation part.")
+    parser.add_argument('-minimaxstats', default=False, action='store_true',
+                        help="Enables statistics gathering in minimax")
 
     args = parser.parse_args()
-
+    mmstats = args.minimaxstats
     agentName = args.name
 
     ip = args.i
@@ -77,7 +79,7 @@ if __name__ == "__main__":
                 tmpPos.set_color(tmpPos.enemy_color)
 
                 final_round = False
-                for state in tmpPos.successor_states(args.ev_switch):
+                for state in tmpPos.successor_states():
                     if state.is_terminal():
                         final_round = True
                     else:
@@ -91,11 +93,14 @@ if __name__ == "__main__":
                 sendMove(myMove, mySocket)  # send our move
                 continue
             else:
-                start = time()
+                if mmstats:
+                    start = time()
+
                 max_value = -1000000
                 selected_node = None
-                for node in gamePosition.successor_states(args.ev_switch):
-                    value = minimax(node, args.depth, True, -100000, 100000, args.nalphabeta, args.ev_switch)
+                for node in gamePosition.successor_states():
+                    value = minimax(node, args.depth, True, -100000, 100000,
+                                    args.nalphabeta, args.nindanger, args.nenamsse)
                     if value > max_value:
                         max_value = value
                         selected_node = node
@@ -104,11 +109,14 @@ if __name__ == "__main__":
                 if selected_node.is_terminal():
                     gamePosition = None
                 sendMove(selected_node.move, mySocket)			# send our move
-                end = time()
-                perfTimes.append(end - start)
+
+                if mmstats:
+                    end = time()
+                    perfTimes.append(end - start)
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
-            print(f"Average decision time(Only minimax): {mean(perfTimes):.2f}s")
+            if mmstats:
+                print(f"Average decision time(Only minimax): {mean(perfTimes):.2f}s")
             close(mySocket)
             exit(0)
 
