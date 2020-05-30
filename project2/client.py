@@ -31,8 +31,10 @@ if __name__ == "__main__":
     parser.add_argument('-i', metavar='ip', default="127.0.0.1", help="The ip to connect to.")
     parser.add_argument('-p', metavar='port', default=DEFAULT_PORT, help="The port to connect to.")
     parser.add_argument('-name', default="AgeAnt", help="Give the agent a new name.")
+    parser.add_argument('-depth', default=6, help="Depth from minimax algorithm.", type=int)
     parser.add_argument('-nalphabeta', default=True, action='store_false', help="Disable alpha beta pruning algorithm.")
-    parser.add_argument('-depth', default=5, help="Depth from minimax algorithm.", type=int)
+    parser.add_argument('-nqsearch', default=True, action='store_false',
+                        help="Disable quiescence search in minimax algorithm.")
     parser.add_argument('-nindanger', default=True, action='store_false', help="Disables in_danger evaluation part.")
     parser.add_argument('-nenamsse', default=True, action='store_false', help="Disables en_masse evaluation part.")
     parser.add_argument('-minimaxstats', default=False, action='store_true',
@@ -100,7 +102,7 @@ if __name__ == "__main__":
                 selected_node = None
                 for node in gamePosition.successor_states():
                     value = minimax(node, args.depth, True, -100000, 100000,
-                                    args.nalphabeta, args.nindanger, args.nenamsse)
+                                    args.nalphabeta, args.nqsearch, args.nindanger, args.nenamsse)
                     if value > max_value:
                         max_value = value
                         selected_node = node
@@ -116,7 +118,7 @@ if __name__ == "__main__":
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
             if mmstats:
-                print(f"Average decision time(Only minimax): {mean(perfTimes):.2f}s")
+                print(f"Average decision time(Only minimax): {mean(perfTimes):.3f}s")
             close(mySocket)
             exit(0)
 
