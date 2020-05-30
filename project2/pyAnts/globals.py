@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 MAXIMUM_MOVE_SIZE = 6
 
 # The size of our board
@@ -21,3 +24,10 @@ DEFAULT_PORT = "6001"
 
 def getOtherSide(side):
     return 1 - side
+
+
+class MinimaxStats:
+    expansion_count = defaultdict(int)
+    perf_times = []
+
+    enabled = False

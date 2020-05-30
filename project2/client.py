@@ -1,10 +1,10 @@
 from pyAnts.board import PositionStruct
 from pyAnts.move import MoveStruct
-from argparse import ArgumentParser, ArgumentError
+from argparse import ArgumentParser
 from pyAnts.comm import connectToTarget, recvMsg, NM_COLOR_B,\
     NM_COLOR_W, NM_NEW_POSITION, NM_QUIT, NM_REQUEST_MOVE,\
     NM_REQUEST_NAME, sendName, getPosition, sendMove
-from pyAnts.globals import BLACK, WHITE, DEFAULT_PORT
+from pyAnts.globals import BLACK, WHITE, DEFAULT_PORT, MinimaxStats
 from os import close
 from pyAnts.adversarial_search import minimax
 from copy import copy
@@ -22,9 +22,6 @@ agentName = "AgeAnt"                # agent name
 
 ip = "127.0.0.1"                    # default ip
 
-perfTimes = []
-
-mmstats = False
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='This is the python version of the client program for the Project TUCAnts')
@@ -39,9 +36,11 @@ if __name__ == "__main__":
     parser.add_argument('-nenamsse', default=True, action='store_false', help="Disables en_masse evaluation part.")
     parser.add_argument('-minimaxstats', default=False, action='store_true',
                         help="Enables statistics gathering in minimax")
+    parser.add_argument('-perf', default=False, action='store_true',
+                        help="Enables performance measurements for minimax")
 
     args = parser.parse_args()
-    mmstats = args.minimaxstats
+    MinimaxStats.enabled = args.minimaxstats
     agentName = args.name
 
     ip = args.i
@@ -95,12 +94,15 @@ if __name__ == "__main__":
                 sendMove(myMove, mySocket)  # send our move
                 continue
             else:
-                if mmstats:
+                if args.perf:
                     start = time()
 
                 max_value = -1000000
                 selected_node = None
                 for node in gamePosition.successor_states():
+                    if MinimaxStats.enabled:
+                        MinimaxStats.expansion_count[str(args.depth)] += 1
+
                     value = minimax(node, args.depth, True, -100000, 100000,
                                     args.nalphabeta, args.nqsearch, args.nindanger, args.nenamsse)
                     if value > max_value:
@@ -112,13 +114,24 @@ if __name__ == "__main__":
                     gamePosition = None
                 sendMove(selected_node.move, mySocket)			# send our move
 
-                if mmstats:
+                if args.perf:
                     end = time()
-                    perfTimes.append(end - start)
+                    MinimaxStats.perf_times.append(end - start)
 
         elif msg == NM_QUIT:			# server wants us to quit...we shall obey
-            if mmstats:
-                print(f"Average decision time(Only minimax): {mean(perfTimes):.3f}s")
+            if args.perf:
+                if len(MinimaxStats.perf_times) > 0:
+                    print(f"Average decision time(Only minimax): {mean(MinimaxStats.perf_times):.3f}s")
+
+            if MinimaxStats.enabled:
+                for i in MinimaxStats.expansion_count:
+                    print(f"|{i:^14s}", end='')
+                print(f"|{'Total':^14s}|")
+
+                for i in MinimaxStats.expansion_count.values():
+                    print(f"|{i:^14d}", end='')
+                print(f"|{sum(MinimaxStats.expansion_count.values()):^14d}|")
+
             close(mySocket)
             exit(0)
 

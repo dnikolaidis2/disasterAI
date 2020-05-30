@@ -1,5 +1,5 @@
 from .move import MoveType
-from .globals import getOtherSide
+from .globals import getOtherSide, MinimaxStats
 
 
 def minimax(node, depth, maximizing_player, a, b, ab_switch, q_search, in_danger, en_masse):
@@ -17,6 +17,8 @@ def minimax(node, depth, maximizing_player, a, b, ab_switch, q_search, in_danger
         value = -100000
 
         for child in node.successor_states():
+            if MinimaxStats.enabled:
+                MinimaxStats.expansion_count[str(depth)] += 1
             value = max(value, minimax(child, depth-1, False, a, b, ab_switch, q_search, in_danger, en_masse))
             a = max(value, a)
             if a >= b and ab_switch:
@@ -28,6 +30,8 @@ def minimax(node, depth, maximizing_player, a, b, ab_switch, q_search, in_danger
         value = +100000
 
         for child in node.successor_states():
+            if MinimaxStats.enabled:
+                MinimaxStats.expansion_count[str(depth)] += 1
             value = min(value, minimax(child, depth-1, True, a, b, ab_switch, q_search, in_danger, en_masse))
             b = min(b, value)
             if a >= b and ab_switch:
@@ -41,15 +45,13 @@ def qsearch(node, maximizing_player, in_danger, en_masse):
     if node.move.type == MoveType.JUMP:
         node.set_color(getOtherSide(node.color))
         for state in node.successor_states():
+            if MinimaxStats.enabled:
+                MinimaxStats.expansion_count['qsearch'] += 1
             if state.move.type == MoveType.JUMP:
                 if state.move.jump_count > node.move.jump_count:
                     if maximizing_player:
                         return -500
                     else:
                         return 500
-                else:
-                    return stat_eval
-            else:
-                return stat_eval
-    else:
-        return stat_eval
+
+    return stat_eval
