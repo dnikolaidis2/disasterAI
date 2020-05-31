@@ -11,6 +11,7 @@
 newRandomLevel.world
 !requirements.txt
 !Αναφορά.pdf
+!Report.pdf
 
 *.o
 **/client
