@@ -104,7 +104,7 @@ if __name__ == "__main__":
                         MinimaxStats.expansion_count[str(args.depth)] += 1
 
                     value = minimax(node, args.depth, True, -100000, 100000,
-                                    args.nalphabeta, args.nqsearch, args.nindanger, args.nenamsse)
+                                    args.nalphabeta, args.qsearch, args.nindanger, args.nenamsse)
                     if value > max_value:
                         max_value = value
                         selected_node = node
