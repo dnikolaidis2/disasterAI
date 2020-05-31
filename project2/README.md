@@ -18,6 +18,7 @@ loading the environment variable for you and pass any arguments you have on to t
 
 * Linux operating system
 * libgtk2.0-dev
+* Python3.6 and above
 * Cython *for python interface*
 
 ## Compilation
@@ -44,9 +45,9 @@ loading the environment variable for you and pass any arguments you have on to t
 Python agent:
 
 ```
-chmod +x runClient.sh && client.py [-h] [-i ip] [-p port] [-name NAME] [-depth DEPTH]
-                                   [-nalphabeta] [-qsearch] [-nindanger] [-nenamsse]
-                                   [-minimaxstats] [-perf]
+chmod +x runClient.sh && ./runClient.sh [-h] [-i ip] [-p port] [-name NAME] [-depth DEPTH]
+                                        [-nalphabeta] [-qsearch] [-nindanger] [-nenamsse]
+                                        [-minimaxstats] [-perf]
 ```
 ## Changes in last version
 
