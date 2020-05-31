@@ -30,8 +30,8 @@ if __name__ == "__main__":
     parser.add_argument('-name', default="AgeAnt", help="Give the agent a new name.")
     parser.add_argument('-depth', default=6, help="Depth from minimax algorithm.", type=int)
     parser.add_argument('-nalphabeta', default=True, action='store_false', help="Disable alpha beta pruning algorithm.")
-    parser.add_argument('-nqsearch', default=True, action='store_false',
-                        help="Disable quiescence search in minimax algorithm.")
+    parser.add_argument('-qsearch', default=False, action='store_true',
+                        help="Enable quiescence search in minimax algorithm.")
     parser.add_argument('-nindanger', default=True, action='store_false', help="Disables in_danger evaluation part.")
     parser.add_argument('-nenamsse', default=True, action='store_false', help="Disables en_masse evaluation part.")
     parser.add_argument('-minimaxstats', default=False, action='store_true',
